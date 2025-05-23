@@ -1,0 +1,29 @@
+#mainChat{
+    font-size: 500%;
+}
+
+#formLinkPython{
+    height: 50%;
+    width : 100%;
+}
+
+.question{
+   font-size: 150%;
+   padding-left: 40%;
+   padding-bottom: 30%;
+}
+.input{
+   font-size: 150%;
+   padding-left: 40%;
+}
+input{
+    width: 35%;
+}
+.button{
+    padding-top: 5%;
+    padding-left: 45%;
+}
+button{
+    width: 20%;
+    height: 80px;
+}
