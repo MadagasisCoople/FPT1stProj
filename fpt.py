@@ -58,3 +58,21 @@ def getAllUserMusic(username:str):
     if not collection.find_one({"userName": username}):
         raise HTTPException(status_code=400, detail="User not found")
     return list(collection.find({"userName": username}, {"_id": 0, "userMusic": 1}))
+
+@app.delete("/usersName/")
+def deleteUser(username:str):
+    if not collection.find_one({"userName": username}):
+        raise HTTPException(status_code=400, detail="User not found")
+    
+    collection.delete_one({"userName": username})
+    return {"message": "User deleted successfully"}
+
+@app.delete("/usersMusic/")
+def deleteMusic(username:str, userMusic:str):
+    if not collection.find_one({"userName": username}):
+        raise HTTPException(status_code=400, detail="User not found")
+    collection.update_one(
+        {"userName": username},
+        {"$pull": {"userMusic": {"userMusic": userMusic}}}
+    )
+    return {"message": "Music deleted successfully"}
