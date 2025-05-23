@@ -4,8 +4,8 @@
     <title id="header">MUSIC FOR EVERYBODY!!!</title>
     <link rel="stylesheet" href="fpt.css">
 </head>
-<body>
-    <h1 id="headLine"></h1>
+<body id = "mainBody">
+    <h1 id="headLine">.</h1>
     
     <!-- Simple form that sends data to your Python endpoint -->
     <form id="formLinkPython" onsubmit="submitSong(event)">
@@ -27,24 +27,7 @@
     
     </form>
 
-    <script>
-        function modifyAndSubmit(event) {
-            event.preventDefault(); // Stop normal form submission
-            
-            // Get the input value and modify it
-            let searchInput = document.getElementById('queries');
-            let searchValue = searchInput.value + " fat"; // Add " fat" to whatever was typed
-            
-            // Create the URL with modified value
-            let numberValue = document.getElementById('numbers').value;
-            let url = `http://localhost:8000/video/?queries=${encodeURIComponent(searchValue)}&numbers=${numberValue}`;
-            
-            // Redirect to the URL (sends modified data to Python)
-            window.location.href = url;
-            
-            return false; // Prevent form from submitting normally
-        }
-    </script>
+    <script src="fpt.js"></script>
 
 </body>
 </html>

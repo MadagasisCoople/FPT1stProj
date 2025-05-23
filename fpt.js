@@ -1,24 +1,40 @@
+const labels = document.getElementsByTagName("label")
+const inputs = document.getElementsByTagName("input")
+const buttons = document.getElementsByTagName("button")
+const form = document.getElementById("formLinkPython")
+const body = document.getElementById("mainBody")
+
+body.removeChild(form)
+
+
+
 //when loading the page, get how many users are there.
-window.onload = function() {
+window.addEventListener("load",loadingPageBasedOnUserCount);
+
+function loadingPageBasedOnUserCount(){    
+    //run numberOfUsers route
     fetch('http://localhost:8000/usersName')
         .then(response => response.json())
         .then(data => {
+            //unable to assign null to numberOfUsers therefore assign 0 to it
             if(data.userCount==null){
-                data
+                data.userCount = 0;
             }
+
             // Assuming the response is a JSON object with a 'number' property
             const numberOfUsers = data.userCount;
             
             // First ever login will be an instruction and welcoming message
             if(numberOfUsers == 0){
-                document.getElementById('headline').innerHTML = "Welcome to my~~~~ Worldddddd! Are you ready to dip into the world of music?";
+                document.getElementById('headLine').innerHTML = "Welcome to my~~~~ Worldddddd! Are you ready to dip into the world of music?Click on me to hop on!";
             }
             else{
                 return;
             }
         })
-        .catch(error => console.error('Fetch error:', error));
 
+        //in case there is an error
+        .catch(error => console.error('Fetch error:', error));
 }
 
 
