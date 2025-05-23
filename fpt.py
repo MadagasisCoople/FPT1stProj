@@ -1,6 +1,8 @@
 from fastapi import FastAPI, HTTPException
 from userName import userNames, Musics
 from typing import List
+from googleapiclient.discovery import build
+
 
 app = FastAPI()
 
@@ -28,15 +30,26 @@ def addUser(username:str, password:str ):# -> set[dict[str, Any]] | None:# -> se
     print(users)
     return {str(userId),username,password}
 
+youtube = build("youtube", "v3", developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
+
 @app.post("/usersMusic/")
 def addMusic(username:str, userMusic:str):
     if not collection.find_one({"userName": username}):
         raise HTTPException(status_code=400, detail="User not found")
+    
+    request = youtube.search().list(
+    q= userMusic,
+    part="id",
+    maxResults=1
+    )
+    response = request.execute()
 
     newMusic = {
         "userMusic": userMusic,
+        "musicId": response["items"][0]["id"]["videoId"],
     }
     collection.update_one(
         {"userName": username},
         {"$push": {"userMusic": newMusic}}
     )
+    
