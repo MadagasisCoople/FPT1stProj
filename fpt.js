@@ -7,7 +7,6 @@ const musicContainer = document.getElementById('musicContainer')
 
 // temporary remove the part that are unecessary "yet from the body
 body.removeChild(form)
-body.removeChild(musicContainer)
 
 //when loading the page, get how many users are there.
 window.addEventListener("load",loadingPageBasedOnUserCount);
@@ -61,29 +60,31 @@ function moveToChatBG(){
     body.appendChild(form)
 }
 
+// Function to call the Python backend's getAllUserMusic route and display it in the list
 
-
-// Function to call the Python backend's getAllUserMusic route
 function getAllUserMusic() {
     fetch(`http://localhost:8000/usersMusics/?username=${encodeURIComponent(username)}`)
         .then(response => response.json())
         .then(data => {
-            console.log('Music data received:', data);
+            console.log('Music data received:', data.userMusic);
             // Assuming the response is a JSON object with a 'music' property
-            musicList = data.music || []; // Use an empty array if 'music' is not present
-            
+            musicList = data[0].userMusic || []; // Use an empty array if 'music' is not present
+            console.log('Music List:', musicList);  
             // Clear previous music list
             musicContainer.innerHTML = '';
 
             // Populate the music list
             musicList.forEach(music => {
                 const musicItem = document.createElement('li');
-                musicItem.textContent = music;
+                musicItem.innerHTML = music.userMusic;   
                 musicContainer.appendChild(musicItem);
             });
         })
+        
         .catch(error => console.error('Fetch error:', error));
 }    
+
+//Login function that will be called when the form is submitted
 
 function submitLogin(event) {
 
@@ -129,9 +130,38 @@ function submitLogin(event) {
                 console.log('Login successful:', data);
                 // Call the function to get all user music
                 getAllUserMusic();
+                buttons[0].innerHTML = "Add Music";
+                for(i of document.getElementsByClassName("passWord")){
+                form.removeChild(i);}
+                for(i of document.getElementsByClassName("userName")){
+                form.removeChild(i);}
             } else {
                 console.error('Login failed:', data.message|| data.message || data);
             }
         })
     }
+}
+
+// function to run the add music route
+function addMusic() {
+    // Get the input value and modify it
+    let musicInput = document.getElementById('musicInput').value;
+
+   // Create the URL with values from the input fields
+    let url = `http://localhost:8000/addMusic/?username=${encodeURIComponent(username)}&music=${encodeURIComponent(musicInput)}`;
+
+    // send a POST request to the Python backend
+    fetch(url, {
+        method: 'POST'
+    })
+    
+    // Handle the response
+    .then(response => response.json())
+    .then(data => {
+        body.appendChild(musicContainer);
+        console.log('Music added:', data);
+        // Refresh the music list after adding new music
+        getAllUserMusic();
+    })
+    .catch(error => console.error('Error:', error));
 }
