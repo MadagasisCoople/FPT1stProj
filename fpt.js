@@ -4,8 +4,9 @@ const buttons = document.getElementsByTagName("button")
 const form = document.getElementById("formLinkPython")
 const body = document.getElementById("mainBody")
 const musicContainer = document.getElementById('musicContainer')
-
-
+const input1 =  document.getElementById('inputUserName')
+const input2 =  document.getElementById('inputPassWord')    
+const buttonWrapper = document.getElementsByClassName('button')
 // temporary remove the part that are unecessary "yet from the body
 body.removeChild(form)
 
@@ -72,7 +73,7 @@ function getAllUserMusic() {
             musicList = data[0].userMusic || []; // Use an empty array if 'music' is not present
             console.log('Music List:', musicList);  
             // Clear previous music list
-            musicContainer.innerHTML = '';
+            musicContainer.innerHTML = 'Your Music List:';
 
             // Populate the music list
             musicList.forEach(music => {
@@ -131,7 +132,8 @@ function submitLogin(event) {
                 console.log('Login successful:', data);
                 // Call the function to get all user music
                 getAllUserMusic();
-                buttons[0].innerHTML = "Add Music";
+                buttons[0].innerHTML = "You want to add more music?";
+                buttons[0].addEventListener("click", openAddMusicPage);
                 form.removeChild(document.getElementsByClassName("passWords")[0]);
                 form.removeChild(document.getElementById("inputPassWord"))
                 document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!";
@@ -143,13 +145,27 @@ function submitLogin(event) {
     }
 }
 
-// function to run the add music route
-function addMusic() {
+// function to open the add music route page
+function openAddMusicPage(event) {
+    event.preventDefault(); // Stop normal form submission
+    //Taking out the inputing box
+    form.insertBefore(input1,buttonWrapper[0]);
+    buttons[0].removeEventListener("click", openAddMusicPage);  
+    buttons[0].addEventListener("click", addMusic);
+    buttons[0].innerHTML = "Add Music!";
+    document.getElementsByClassName("userNames")[0].innerHTML = "Please input the music you want to add!";
+
+}
+
+//function to add music to the user
+function addMusic(event) {
+
+    event.preventDefault(); // Stop normal form submission
     // Get the input value and modify it
-    let musicInput = document.getElementById('musicInput').value;
+    let musicInput = document.getElementsByClassName('userNames')[1].value;
 
    // Create the URL with values from the input fields
-    let url = `http://localhost:8000/addMusic/?username=${encodeURIComponent(username)}&music=${encodeURIComponent(musicInput)}`;
+    let url = `http://localhost:8000/usersMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(musicInput)}`;
 
     // send a POST request to the Python backend
     fetch(url, {
@@ -165,4 +181,7 @@ function addMusic() {
         getAllUserMusic();
     })
     .catch(error => console.error('Error:', error));
+    form.removeChild(input1);
+    buttons[0].innerHTML = "You want to add more music?";
+    buttons[0].removeEventListener("click", addMusic);
 }
