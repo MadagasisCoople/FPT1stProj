@@ -4,14 +4,14 @@ const buttons = document.getElementsByTagName("button")
 const form = document.getElementById("formLinkPython")
 const body = document.getElementById("mainBody")
 const musicContainer = document.getElementById('musicContainer')
-const input1 =  document.getElementById('inputUserName')
-const input2 =  document.getElementById('inputPassWord')    
+const input1 = document.getElementById('inputUserName')
+const input2 = document.getElementById('inputPassWord')
 const buttonWrapper = document.getElementsByClassName('button')
 // temporary remove the part that are unecessary "yet from the body
 body.removeChild(form)
 
 //when loading the page, get how many users are there.
-window.addEventListener("load",loadingPageBasedOnUserCount);
+window.addEventListener("load", loadingPageBasedOnUserCount);
 
 //variables
 var musicList = [];
@@ -22,43 +22,43 @@ var password = "";
 //All the existing functions that are used in the HTML file
 
 // Function to handle the login page
-function loadingPageBasedOnUserCount(){    
+function loadingPageBasedOnUserCount() {
     //run numberOfUsers route
     fetch('http://localhost:8000/usersName')
         .then(response => response.json())
         .then(data => {
             //unable to assign null to userCount therefore assign 0 to it
-            if(data.userCount==null){
+            if (data.userCount == null) {
                 data.userCount = 0;
             }
 
-            else if(data.userCount>0){
-            //if already got data, move to the login part.
+            else if (data.userCount > 0) {
+                //if already got data, move to the login part.
                 body.removeChild(document.getElementById('headLine'))
                 body.appendChild(form)
             }
-            
+
             numberOfUsers = data.userCount; // Assign the user count to the variable
 
             // First ever login will be an instruction and welcoming message and then move to the chat background function if clicked
-            if(numberOfUsers == 0){
+            if (numberOfUsers == 0) {
                 document.getElementById('headLine').innerHTML = "Welcome to my~~~~ Worldddddd! Are you ready to dip into the world of music?Click on me to hop on!"
-                document.getElementById('headLine').addEventListener("click",function(){
+                document.getElementById('headLine').addEventListener("click", function () {
                     moveToChatBG()
                     body.removeChild(document.getElementById('headLine'))
                 })
             }
-            else{
+            else {
                 return;
             }
         })
 
         //in case there is an error
         .catch(error => console.error('Fetch error:', error));
-    }
+}
 
 //move to the chat background
-function moveToChatBG(){
+function moveToChatBG() {
     body.appendChild(form)
 }
 
@@ -71,116 +71,132 @@ function getAllUserMusic() {
             console.log('Music data received:', data.userMusic);
             // Assuming the response is a JSON object with a 'music' property
             musicList = data[0].userMusic || []; // Use an empty array if 'music' is not present
-            console.log('Music List:', musicList);  
+            console.log('Music List:', musicList);
             // Clear previous music list
             musicContainer.innerHTML = 'Your Music List:';
 
             // Populate the music list
             musicList.forEach(music => {
                 const musicItem = document.createElement('li');
-                musicItem.innerHTML = music.userMusic;   
+                musicItem.innerHTML = music.userMusic;
                 musicContainer.appendChild(musicItem);
             });
         })
-        
+
         .catch(error => console.error('Fetch error:', error));
-}    
+}
 
 //Login function that will be called when the form is submitted
 
 function submitLogin(event) {
 
     // Get the input value and modify it
-            let userNameInput = document.getElementById('userName').value;
-            let passWordInput = document.getElementById('passWord').value;
-            username = userNameInput;
-            password = passWordInput;
+    let userNameInput = document.getElementById('userName').value;
+    let passWordInput = document.getElementById('passWord').value;
+    username = userNameInput;
+    password = passWordInput;
 
-    if(numberOfUsers==0){
-            event.preventDefault(); // Stop normal form submission
+    if (numberOfUsers == 0) {
+        event.preventDefault(); // Stop normal form submission
 
-            // Create the URL with values from the input fields
-            let url = `http://localhost:8000/usersName/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`;
-            
-            // send a POST request to the Python backend
-            fetch(url,{
-                method: 'POST'
-            })
+        // Create the URL with values from the input fields
+        let url = `http://localhost:8000/usersName/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`;
+
+        // send a POST request to the Python backend
+        fetch(url, {
+            method: 'POST'
+        })
 
             // Handle the response
             .then(response => response.json())
             .then(data => console.log('User added:', data))
             .catch(error => console.error('Error:', error));
-            
-            return false; // Prevent form from submitting normally=
+
+        return false; // Prevent form from submitting normally=
     }
-    else{
+    else {
         event.preventDefault(); // Stop normal form submission
-        
+
         //making the url 
         let url = `http://localhost:8000/checkingUserName/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`
 
         //if there is already a user, then login
-        fetch(url,{
+        fetch(url, {
             method: 'GET'
         })
-     
-        //Handle the response
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                console.log('Login successful:', data);
-                // Call the function to get all user music
-                getAllUserMusic();
-                buttons[0].innerHTML = "You want to add more music?";
-                buttons[0].addEventListener("click", openAddMusicPage);
-                form.removeChild(document.getElementsByClassName("passWords")[0]);
-                form.removeChild(document.getElementById("inputPassWord"))
-                document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!";
-                form.removeChild(document.getElementById("inputUserName"))
-            } else {
-                console.error('Login failed:', data.message|| data.message || data);
-            }
-        })
+
+            //Handle the response
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Login successful:', data);
+
+                    //Changing the page to Welcome page
+                    getAllUserMusic();
+                    buttons[0].innerHTML = "You want to add more music?";
+                    buttons[0].addEventListener("click", openAddMusicPage);
+                    form.removeChild(document.getElementsByClassName("passWords")[0]);
+                    form.removeChild(document.getElementById("inputPassWord"))
+                    document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!";
+                    form.removeChild(document.getElementById("inputUserName"))
+                } else {
+                    console.error('Login failed:', data.message || data.message || data);
+                }
+            })
     }
 }
 
 // function to open the add music route page
 function openAddMusicPage(event) {
     event.preventDefault(); // Stop normal form submission
+
     //Taking out the inputing box
-    form.insertBefore(input1,buttonWrapper[0]);
-    buttons[0].removeEventListener("click", openAddMusicPage);  
+    form.insertBefore(input1, buttonWrapper[0]);
+    buttons[0].removeEventListener("click", openAddMusicPage);
     buttons[0].addEventListener("click", addMusic);
     buttons[0].innerHTML = "Add Music!";
     document.getElementsByClassName("userNames")[0].innerHTML = "Please input the music you want to add!";
-
+    //Delete button
+    const deleteButton = document.createElement('deleteButton');
+    deleteButton.innerHTML = "Delete Music";
+    form.appendChild(deleteButton);
+    deleteButton.addEventListener("click", function (username, musicInput) {
+    fetch(`http://localhost:8000/usersMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(musicInput)}`, {
+        method: 'DELETE'
+    })
+    form.removeChild(input1)
+    form.removeChild(deleteButton);
+    buttons[0].innerHTML = "You want to add more music?";
+    buttons[0].removeEventListener("click", addMusic);
+})
 }
 
 //function to add music to the user
 function addMusic(event) {
-
+    
     event.preventDefault(); // Stop normal form submission
     // Get the input value and modify it
     let musicInput = document.getElementsByClassName('userNames')[1].value;
 
-   // Create the URL with values from the input fields
+    // Create the URL with values from the input fields
     let url = `http://localhost:8000/usersMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(musicInput)}`;
 
     // send a POST request to the Python backend
     fetch(url, {
         method: 'POST'
     })
-    
-    // Handle the response
-    .then(response => response.json())
-    .then(data => {
-        body.prepend(musicContainer);
-        console.log('Music added:', data);
-        // Refresh the music list after adding new music
-        getAllUserMusic();
-    })
-    .catch(error => console.error('Error:', error));
+
+        // Handle the response
+        .then(response => response.json())
+        .then(data => {
+            body.prepend(musicContainer);
+            console.log('Music added:', data);
+            // Refresh the music list after adding new music
+            getAllUserMusic();
+        })
+        .catch(error => console.error('Error:', error));
+
+    // Reset the form and buttons
     form.removeChild(input1);
     buttons[0].innerHTML = "You want to add more music?";
     buttons[0].removeEventListener("click", addMusic);
