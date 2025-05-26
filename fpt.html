@@ -9,23 +9,24 @@
     
     <!-- Simple form that sends data to your Python endpoint -->
     <form id="formLinkPython" onsubmit="submitSong(event)">
-        <label class="question" for="queries">How do you do today:</label><br>
+        <label class="question" for="username">May I have your account name please?</label><br>
         
         <div class = "input">
-        <input type="text" id="queries" name="queries" required><br>
+        <input type="text" class="queries" id="userName" name="username" required><br>
         </div>
         
-        <label class="question" for="numbers">How many songs may help ya?:</label><br>
+        <label class="question" for="numbers">Tell me a secret. *Your password*</label><br>
         
         <div class = "input">
-        <input type="number" id="numbers" name="numbers" min="1" max="10"><br>
+        <input type="text" class="queries" id="passWord" name="password"><br>
         </div>
         
         <div class="button">
         <button type="submit">Song coming for ya!</button>
         </div>
-    
     </form>
+
+    <ul id="musicContainer">.</ul>
 
     <script src="fpt.js"></script>
 
