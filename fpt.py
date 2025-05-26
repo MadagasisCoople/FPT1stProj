@@ -36,8 +36,7 @@ def addUser(username:str, password:str ):# -> set[dict[str, Any]] | None:# -> se
     collection.insert_one(newUser)
     return {
         "userId":str(userId),
-        "userName":username,
-        "password":password}
+        "userName":username,}
 
 #setup youtube api
 youtube = build("youtube", "v3", developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
@@ -71,7 +70,7 @@ def addMusic(username:str, userMusic:str):
     }
 
 #get all music for a specific user
-@app.get("/usersMusic/")
+@app.get("/usersMusics/")
 def getAllUserMusic(username:str):
     if not collection.find_one({"userName": username}):
         raise HTTPException(status_code=400, detail="User not found")
@@ -111,3 +110,14 @@ def deleteMusic(username:str, userMusic:str):
 def numberOfUsers():
     userCount = collection.count_documents({})
     return {"userCount": userCount}
+
+@app.get("/checkingUserName/")
+def checkingUser(username:str,password:str):
+    user = collection.find_one({"userName": username, "passWord": password})
+    if not user:
+        raise HTTPException(status_code=400, detail="User not found or incorrect password")
+    
+    return {
+        "success": True,
+        "userId": str(user["userId"]),
+        "userName": user["userName"],}

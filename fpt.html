@@ -5,20 +5,20 @@
     <link rel="stylesheet" href="fpt.css">
 </head>
 <body id = "mainBody">
-    <h1 id="headLine">.</h1>
+    <h1 id="headLine">Loading ....</h1>
     
     <!-- Simple form that sends data to your Python endpoint -->
-    <form id="formLinkPython" onsubmit="submitSong(event)">
-        <label class="question" for="username">May I have your account name please?</label><br>
+    <form id="formLinkPython" onsubmit="submitLogin(event)">
+        <label class="question" for="userName">May I have your account name please?</label><br>
         
         <div class = "input">
-        <input type="text" class="queries" id="userName" name="username" required><br>
+        <input type="text" class="queries" id="userName" name="userName" required><br>
         </div>
         
-        <label class="question" for="numbers">Tell me a secret. *Your password*</label><br>
+        <label class="question" for="passWord">Tell me a secret. *Your password*</label><br>
         
         <div class = "input">
-        <input type="text" class="queries" id="passWord" name="password"><br>
+        <input type="text" class="queries" id="passWord" name="passWord"><br>
         </div>
         
         <div class="button">
