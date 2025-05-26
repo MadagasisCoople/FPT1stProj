@@ -14,7 +14,9 @@ window.addEventListener("load",loadingPageBasedOnUserCount);
 
 //variables
 var musicList = [];
-
+var numberOfUsers = 0;
+var username = "";
+var password = "";
 
 //All the existing functions that are used in the HTML file
 
@@ -34,10 +36,9 @@ function loadingPageBasedOnUserCount(){
                 body.removeChild(document.getElementById('headLine'))
                 body.appendChild(form)
             }
-
-            // Assuming the response is a JSON object with a 'number' property
-            const numberOfUsers = data.userCount
             
+            numberOfUsers = data.userCount; // Assign the user count to the variable
+
             // First ever login will be an instruction and welcoming message and then move to the chat background function if clicked
             if(numberOfUsers == 0){
                 document.getElementById('headLine').innerHTML = "Welcome to my~~~~ Worldddddd! Are you ready to dip into the world of music?Click on me to hop on!"
@@ -64,9 +65,10 @@ function moveToChatBG(){
 
 // Function to call the Python backend's getAllUserMusic route
 function getAllUserMusic() {
-    fetch('http://localhost:8000/getAllUserMusic')
+    fetch(`http://localhost:8000/usersMusics/?username=${encodeURIComponent(username)}`)
         .then(response => response.json())
         .then(data => {
+            console.log('Music data received:', data);
             // Assuming the response is a JSON object with a 'music' property
             musicList = data.music || []; // Use an empty array if 'music' is not present
             
@@ -83,25 +85,53 @@ function getAllUserMusic() {
         .catch(error => console.error('Fetch error:', error));
 }    
 
-function submitSong(event) {
-            event.preventDefault(); // Stop normal form submission
-            
-            // Get the input value and modify it
+function submitLogin(event) {
+
+    // Get the input value and modify it
             let userNameInput = document.getElementById('userName').value;
             let passWordInput = document.getElementById('passWord').value;
-            console.log('User Name:', userNameInput);
-            console.log('Password:',    passWordInput);
+            username = userNameInput;
+            password = passWordInput;
 
-            // Create the URL with modified value
+    if(numberOfUsers==0){
+            event.preventDefault(); // Stop normal form submission
+
+            // Create the URL with values from the input fields
             let url = `http://localhost:8000/usersName/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`;
             
-            // Redirect to the URL (sends modified data to Python)
+            // send a POST request to the Python backend
             fetch(url,{
                 method: 'POST'
             })
+
+            // Handle the response
             .then(response => response.json())
             .then(data => console.log('User added:', data))
             .catch(error => console.error('Error:', error));
             
             return false; // Prevent form from submitting normally=
-        }
+    }
+    else{
+        event.preventDefault(); // Stop normal form submission
+        
+        //making the url 
+        let url = `http://localhost:8000/checkingUserName/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`
+
+        //if there is already a user, then login
+        fetch(url,{
+            method: 'GET'
+        })
+     
+        //Handle the response
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Login successful:', data);
+                // Call the function to get all user music
+                getAllUserMusic();
+            } else {
+                console.error('Login failed:', data.message|| data.message || data);
+            }
+        })
+    }
+}
