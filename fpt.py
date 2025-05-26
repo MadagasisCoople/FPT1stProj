@@ -115,9 +115,18 @@ def numberOfUsers():
 def checkingUser(username:str,password:str):
     user = collection.find_one({"userName": username, "passWord": password})
     if not user:
-        raise HTTPException(status_code=400, detail="User not found or incorrect password")
+        raise HTTPException(status_code=404, detail="User not found or incorrect password")
     
     return {
         "success": True,
         "userId": str(user["userId"]),
         "userName": user["userName"],}
+
+# Get user's ID by username
+@app.get("/getUserId/")
+def getUserId(username: str):
+    user = collection.find_one({"userName": username})
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
+    
+    return {"userId": str(user["userId"])}
