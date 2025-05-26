@@ -4,47 +4,31 @@
     <title id="header">MUSIC FOR EVERYBODY!!!</title>
     <link rel="stylesheet" href="fpt.css">
 </head>
-<body>
-    <h1 id="headLine"></h1>
+<body id = "mainBody">
+    <h1 id="headLine">.</h1>
     
     <!-- Simple form that sends data to your Python endpoint -->
     <form id="formLinkPython" onsubmit="submitSong(event)">
-        <label class="question" for="queries">How do you do today:</label><br>
+        <label class="question" for="username">May I have your account name please?</label><br>
         
         <div class = "input">
-        <input type="text" id="queries" name="queries" required><br>
+        <input type="text" class="queries" id="userName" name="username" required><br>
         </div>
         
-        <label class="question" for="numbers">How many songs may help ya?:</label><br>
+        <label class="question" for="numbers">Tell me a secret. *Your password*</label><br>
         
         <div class = "input">
-        <input type="number" id="numbers" name="numbers" min="1" max="10"><br>
+        <input type="text" class="queries" id="passWord" name="password"><br>
         </div>
         
         <div class="button">
         <button type="submit">Song coming for ya!</button>
         </div>
-    
     </form>
 
-    <script>
-        function modifyAndSubmit(event) {
-            event.preventDefault(); // Stop normal form submission
-            
-            // Get the input value and modify it
-            let searchInput = document.getElementById('queries');
-            let searchValue = searchInput.value + " fat"; // Add " fat" to whatever was typed
-            
-            // Create the URL with modified value
-            let numberValue = document.getElementById('numbers').value;
-            let url = `http://localhost:8000/video/?queries=${encodeURIComponent(searchValue)}&numbers=${numberValue}`;
-            
-            // Redirect to the URL (sends modified data to Python)
-            window.location.href = url;
-            
-            return false; // Prevent form from submitting normally
-        }
-    </script>
+    <ul id="musicContainer">.</ul>
+
+    <script src="fpt.js"></script>
 
 </body>
 </html>
