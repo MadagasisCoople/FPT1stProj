@@ -5,6 +5,7 @@ const form = document.getElementById("formLinkPython")
 const body = document.getElementById("mainBody")
 const musicContainer = document.getElementById('musicContainer')
 
+
 // temporary remove the part that are unecessary "yet from the body
 body.removeChild(form)
 
@@ -131,10 +132,10 @@ function submitLogin(event) {
                 // Call the function to get all user music
                 getAllUserMusic();
                 buttons[0].innerHTML = "Add Music";
-                for(i of document.getElementsByClassName("passWord")){
-                form.removeChild(i);}
-                for(i of document.getElementsByClassName("userName")){
-                form.removeChild(i);}
+                form.removeChild(document.getElementsByClassName("passWords")[0]);
+                form.removeChild(document.getElementById("inputPassWord"))
+                document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!";
+                form.removeChild(document.getElementById("inputUserName"))
             } else {
                 console.error('Login failed:', data.message|| data.message || data);
             }
