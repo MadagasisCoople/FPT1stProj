@@ -175,7 +175,7 @@ function addMusic(event) {
     // Handle the response
     .then(response => response.json())
     .then(data => {
-        body.appendChild(musicContainer);
+        body.prepend(musicContainer);
         console.log('Music added:', data);
         // Refresh the music list after adding new music
         getAllUserMusic();

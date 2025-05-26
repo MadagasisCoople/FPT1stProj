@@ -45,9 +45,13 @@ youtube = build("youtube", "v3", developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_C
 @app.post("/usersMusic/")
 def addMusic(username:str, userMusic:str):
     # Check if the user exists
-    if not collection.find_one({"userName": username}):
+    if not collection.find_one({"userName":username
+}):
         raise HTTPException(status_code=400, detail="User not found")
-    
+    if collection.find_one({"userMusic.userMusic": {
+            "$regex": userMusic, "$options": "i"  # Case-insensitive match
+        }}):
+        raise HTTPException(status_code=400, detail="Music already exists for this user")
     #request to youtube api
     request = youtube.search().list(
     q= userMusic,
@@ -72,7 +76,7 @@ def addMusic(username:str, userMusic:str):
 #get all music for a specific user
 @app.get("/usersMusics/")
 def getAllUserMusic(username:str):
-    if not collection.find_one({"userName": username}):
+    if not collection.find_one({"userName":username}):
         raise HTTPException(status_code=400, detail="User not found")
     return list(collection.find({"userName": username}, {"_id": 0, "userMusic": 1}))
 
@@ -101,7 +105,9 @@ def deleteMusic(username:str, userMusic:str):
     #delete the music
     collection.update_one(
         {"userName": username},
-        {"$pull": {"userMusic": {"userMusic": userMusic}}}
+        {"$pull": {"userMusic": {"userMusic": {
+            "$regex": userMusic, "$options": "i"  # Case-insensitive match
+        }}}}
     )
     return {"message": "Music deleted successfully"}
 
