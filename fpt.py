@@ -39,7 +39,7 @@ def addUser(username:str, password:str ):# -> set[dict[str, Any]] | None:# -> se
         "userName":username,}
 
 #setup youtube api
-youtube = build("youtube", "v3", developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
+youtube = build("youtube", "v3", developerKey="YOUR_YOUTUBE_API_KEY")
 
 # Create a new music for a specific user
 @app.post("/usersMusic/")
