@@ -39,7 +39,7 @@ def addUser(username:str, password:str ):# -> set[dict[str, Any]] | None:# -> se
         "userName":username,}
 
 #setup youtube api
-youtube = build("youtube", "v3", developerKey="YOUR_YOUTUBE_API_KEY")
+youtube = build("youtube", "v3", developerKey="put your own")
 
 # Create a new music for a specific user
 @app.post("/usersMusic/")
@@ -84,7 +84,7 @@ def getAllUserMusic(username:str):
 @app.delete("/usersName/all")
 def deleteAllUsers():
     collection.delete_many({})
-    return {"message": "All users deleted successfully"}
+    return {"mes.sage": "All users deleted successfully"}
 
 #delete a specific user
 @app.delete("/usersName/")
