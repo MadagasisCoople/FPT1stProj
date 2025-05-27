@@ -22,7 +22,7 @@ app.add_middleware(
 @app.post("/usersName/")
 def addUser(username:str, password:str ):# -> set[dict[str, Any]] | None:# -> set[dict[str, Any]] | None: 
     if collection.find_one({"userName": username}): # Check if the username already exists
-            raise HTTPException(status_code=400,detail="Already exists a same username")
+            raise HTTPException(status_code=404,detail="Already exists a same username")
         
     userId = collection.count_documents({}) + 1
 
@@ -47,11 +47,11 @@ def addMusic(username:str, userMusic:str):
     # Check if the user exists
     if not collection.find_one({"userName":username
 }):
-        raise HTTPException(status_code=400, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not found")
     if collection.find_one({"userMusic.userMusic": {
             "$regex": userMusic, "$options": "i"  # Case-insensitive match
         }}):
-        raise HTTPException(status_code=400, detail="Music already exists for this user")
+        raise HTTPException(status_code=404, detail="Music already exists for this user")
     #request to youtube api
     request = youtube.search().list(
     q= userMusic,
@@ -77,7 +77,7 @@ def addMusic(username:str, userMusic:str):
 @app.get("/usersMusics/")
 def getAllUserMusic(username:str):
     if not collection.find_one({"userName":username}):
-        raise HTTPException(status_code=400, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not found")
     return list(collection.find({"userName": username}, {"_id": 0, "userMusic": 1}))
 
 #delete all users
@@ -90,7 +90,7 @@ def deleteAllUsers():
 @app.delete("/usersName/")
 def deleteUser(username:str):
     if not collection.find_one({"userName": username}):
-        raise HTTPException(status_code=400, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not found")
     
     collection.delete_one({"userName": username})
     return {"message": "User deleted successfully"}
@@ -100,7 +100,7 @@ def deleteUser(username:str):
 def deleteMusic(username:str, userMusic:str):
     # Check if the user exists
     if not collection.find_one({"userName": username}):
-        raise HTTPException(status_code=400, detail="User not found")
+        raise HTTPException(status_code=404, detail="User not found")
     
     #delete the music
     collection.update_one(
