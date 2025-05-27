@@ -1,13 +1,18 @@
 const labels = document.getElementsByTagName("label")
 const inputs = document.getElementsByTagName("input")
-const buttons = document.getElementsByTagName("button")
+const submitButton = document.getElementById("submitButton")
 const form = document.getElementById("formLinkPython")
 const body = document.getElementById("mainBody")
 const musicContainer = document.getElementById('musicContainer')
-const input1 = document.getElementById('inputUserName')
-const input2 = document.getElementById('inputPassWord')
+const inputUserName = document.getElementById('inputUserName')
+const inputPassWord = document.getElementById('inputPassWord')
 const buttonWrapper = document.getElementsByClassName('button')
+const deleteButton = document.getElementById('deleteButton')
+const deleteButtonWrapper = document.getElementById('deleteButtons')
+const submitButtonWrapper = document.getElementById('submitButtons')
+
 // temporary remove the part that are unecessary "yet from the body
+form.removeChild(deleteButtonWrapper)
 body.removeChild(form)
 
 //when loading the page, get how many users are there.
@@ -18,6 +23,7 @@ var musicList = [];
 var numberOfUsers = 0;
 var username = "";
 var password = "";
+var musicInput = "";
 
 //All the existing functions that are used in the HTML file
 
@@ -55,6 +61,7 @@ function loadingPageBasedOnUserCount() {
 
         //in case there is an error
         .catch(error => console.error('Fetch error:', error));
+
 }
 
 //move to the chat background
@@ -133,8 +140,8 @@ function submitLogin(event) {
 
                     //Changing the page to Welcome page
                     getAllUserMusic();
-                    buttons[0].innerHTML = "You want to add more music?";
-                    buttons[0].addEventListener("click", openAddMusicPage);
+                    submitButton.innerHTML = "You want to add more music?";
+                    submitButton.addEventListener("click", openAddMusicPage);
                     form.removeChild(document.getElementsByClassName("passWords")[0]);
                     form.removeChild(document.getElementById("inputPassWord"))
                     document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!";
@@ -151,23 +158,23 @@ function openAddMusicPage(event) {
     event.preventDefault(); // Stop normal form submission
 
     //Taking out the inputing box
-    form.insertBefore(input1, buttonWrapper[0]);
-    buttons[0].removeEventListener("click", openAddMusicPage);
-    buttons[0].addEventListener("click", addMusic);
-    buttons[0].innerHTML = "Add Music!";
+    form.insertBefore(inputUserName, submitButtonWrapper);
+    submitButton.removeEventListener("click", openAddMusicPage);
+    submitButton.addEventListener("click", addMusic);
+    submitButton.innerHTML = "Add Music!";
     document.getElementsByClassName("userNames")[0].innerHTML = "Please input the music you want to add!";
-    //Delete button
-    const deleteButton = document.createElement('deleteButton');
-    deleteButton.innerHTML = "Delete Music";
-    form.appendChild(deleteButton);
-    deleteButton.addEventListener("click", function (username, musicInput) {
+    
+    // Delete button
+    form.appendChild(deleteButtonWrapper);
+    deleteButton.addEventListener("click", function (event) {
+    event.preventDefault(); // Stop normal form submission
+    musicInput = document.getElementsByClassName('userNames')[1].value
     fetch(`http://localhost:8000/usersMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(musicInput)}`, {
         method: 'DELETE'
-    })
-    form.removeChild(input1)
-    form.removeChild(deleteButton);
-    buttons[0].innerHTML = "You want to add more music?";
-    buttons[0].removeEventListener("click", addMusic);
+    }
+)
+    getAllUserMusic();
+    resetForm()
 })
 }
 
@@ -176,7 +183,7 @@ function addMusic(event) {
     
     event.preventDefault(); // Stop normal form submission
     // Get the input value and modify it
-    let musicInput = document.getElementsByClassName('userNames')[1].value;
+    musicInput = document.getElementsByClassName('userNames')[1].value;
 
     // Create the URL with values from the input fields
     let url = `http://localhost:8000/usersMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(musicInput)}`;
@@ -196,8 +203,17 @@ function addMusic(event) {
         })
         .catch(error => console.error('Error:', error));
 
+        resetForm();
+}
+
+// Function to reset the form      
+function resetForm() {
+   
     // Reset the form and buttons
-    form.removeChild(input1);
-    buttons[0].innerHTML = "You want to add more music?";
-    buttons[0].removeEventListener("click", addMusic);
+    form.removeChild(inputUserName);
+    submitButton.innerHTML = "You want to add more music?";
+    submitButton.removeEventListener("click", addMusic);
+    document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!"   
+    submitButton.addEventListener("click", openAddMusicPage);
+    form.removeChild(deleteButtonWrapper);
 }
