@@ -5,5 +5,3 @@ __pycache__/
 node_modules/
 Scripts/
 package-lock.json
-package.json
-requirements.txt
