@@ -26,6 +26,7 @@ const deleteButtonWrapper = document.getElementById('deleteButtons')
 // temporary remove the part that are unecessary "yet from the body
 form.removeChild(deleteButtonWrapper)
 body.removeChild(form)
+body.removeChild(musicContainer);
 
 //when loading the page, get how many users are there.
 window.addEventListener("load", loadingPageBasedOnUserCount);
@@ -41,13 +42,22 @@ var musicInput = "";
 
 // Function to handle the login page
 function loadingPageBasedOnUserCount() {
+    console.log("Loading page based on user count...");
+
     //run numberOfUsers route
-    fetch('http://localhost:8000/usersName')
+    fetch('http://localhost:8000/usersName/')
         .then(response => response.json())
-        .then(data => {
+        .then(data => { 
+            numberOfUsers = data.userCount || 0; // Get the user count from the response, default to 0 if not present
             //unable to assign null to userCount therefore assign 0 to it
-            if (data.userCount == null) {
+            if (data.userCount == null|| data.userCount == 0) {
+                console.log('User count data received:')
                 data.userCount = 0;
+                headLine.innerHTML = "Welcome to my~~~~ Worldddddd! Are you ready to dip into the world of music?Click on me to hop on!"
+                headLine.addEventListener("click", function () {
+                    openLoginPage();
+                    body.removeChild(headLine)
+                })
             }
 
             else if (data.userCount > 0) {
@@ -55,25 +65,9 @@ function loadingPageBasedOnUserCount() {
                 body.removeChild(headLine)
                 openLoginPage()
             }
-
-            numberOfUsers = data.userCount; // Assign the user count to the variable
-
-            // First ever login will be an instruction and welcoming message and then move to the chat background function if clicked
-            if (numberOfUsers == 0) {
-                headline.innerHTML = "Welcome to my~~~~ Worldddddd! Are you ready to dip into the world of music?Click on me to hop on!"
-                headline.addEventListener("click", function () {
-                    openWelcomePage();
-                    body.removeChild(headline)
-                })
-            }
-            else {
-                return;
-            }
         })
-
         //in case there is an error
         .catch(error => console.error('Fetch error:', error));
-
 }
 
 
@@ -105,6 +99,7 @@ function getAllUserMusic() {
 
 function submitLogin(event) {
 
+    event.preventDefault(); // Stop normal form submission
     // Get the input value and modify it
     let userNameInput = inputUserName.value;
     let passWordInput = inputPassWord.value;
@@ -127,14 +122,12 @@ function submitLogin(event) {
             .then(response => response.json())
             .then(data => console.log('User added:', data))
             .catch(error => console.error('Error:', error));
-
-        return false; // Prevent form from submitting normally=
-    }
+            openWelcomePage();
+        }
 
     //if there is already a user, then login
     else {
-        event.preventDefault(); // Stop normal form submission
-
+        //Function to handle the login form submission
         //making the url 
         let url = `http://localhost:8000/checkingUserName/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`
         fetch(url, {
@@ -146,21 +139,21 @@ function submitLogin(event) {
             .then(data => {
                 if (data.success) {
                     console.log('Login successful:', data);
-
                     //open the welcome page
                     openWelcomePage();
                 } else {
                     console.error('Login failed:', data.message || data.message || data);
                 }
-            })
+            }
+            )
     }
 }
 
 //Function to open the login page
 function openLoginPage() {
     body.appendChild(form)
-    body.removeChild(musicContainer);
-    if(!inputPassWordWrapper) body.appendChild(inputPassWordWrapper);
+    if(body.contains(musicContainer)) body.removeChild(musicContainer);
+    if(!form.contains(inputPassWordWrapper)) body.appendChild(inputPassWordWrapper);
     submitButton.innerHTML = "Songs comin for ya!";
 }
 
@@ -237,7 +230,7 @@ function deleteMusic(event) {
 function resetForm() {
 
     // Reset the form and buttons
-    form.removeChild(inputUserName);
+    form.removeChild(inputUserNameWrapper);
     submitButton.innerHTML = "You want to add more music?";
     submitButton.removeEventListener("click", addMusic);
     document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!"
