@@ -13,3 +13,14 @@ class mongoDB:
     async def closeMongo(cls) -> None:
         cls.client.close()
 
+    @classmethod
+    async def createCollection(cls, collection_name: str) -> None:
+        if cls.db is not None:
+            await cls.db.create_collection(collection_name)
+        else:
+            raise ValueError("Database connection is not established.")
+        
+def getMongoDB(request):
+    if request.app.state.db is None:
+        raise ValueError("Database connection is not established.")
+    return request.app.state.db
