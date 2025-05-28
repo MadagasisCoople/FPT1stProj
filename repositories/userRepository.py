@@ -3,7 +3,7 @@ from domain.Schema import userNames, Musics
 
 class userRepository:
     
-    async def add_user(self,username: str, password: str,db):
+    async def addUser(self,username: str, password: str,db):
         
         userId = db.count_documents({}) + 1
         
@@ -37,6 +37,6 @@ class userRepository:
         "userId": str(user["userId"]),
         "userName": user["userName"],}
     
-    def getUserId(self,username: str, db):
+    async def getUserId(self,username: str, db):
         user = db.find_one({"userName": username})
         return {"userId": str(user["userId"])}

@@ -4,8 +4,8 @@ from googleapiclient.discovery import build
 
 
 class musicRepository:
-    @staticmethod
-    async def addMusic(username: str, userMusic: str, db):
+    
+    async def addMusic(self, username: str, userMusic: str, db):
         youtube = build("youtube", "v3", developerKey="put your own")
 
         request = youtube.search().list(
@@ -29,12 +29,10 @@ class musicRepository:
         "musicId": response["items"][0]["id"]["videoId"]
     }
 
-    @staticmethod
-    async def getAllUserMusic(username: str, db):
+    async def getAllUserMusic(self, username: str, db):
         return list(db.find({"userName": username}, {"_id": 0, "userMusic": 1}))
 
-    @staticmethod
-    async def deleteMusic(username: str, userMusic: str, db):
+    async def deleteMusic(self, username: str, userMusic: str, db):
         db.update_one(
             {"userName": username},
             {"$pull": {"userMusic": {"userMusic": {
