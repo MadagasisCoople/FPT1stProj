@@ -1,14 +1,12 @@
 from fastapi import FastAPI, HTTPException
-from username_song.domain.userName import userNames, Music
+from domain.Schema import userNames, Musics
 from googleapiclient.discovery import build
-from pymongo import MongoClient
+from core.lifespan import lifespanConnect
 from fastapi.middleware.cors import CORSMiddleware
-
-app = FastAPI()
-
-client = MongoClient("mongodb://host.docker.internal:27017/")
-db = client["userdb"]
-collection = db["userNameList"]
+from infrastructure.mongoDB import getMongoDB
+from fastapi import Depends
+from domain.Error import userNameConflictError, songConflictError, userNameNotFoundError, songNotFoundError
+app = FastAPI(lifespan=lifespanConnect)
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,11 +17,11 @@ app.add_middleware(
 
 #Create a new user
 @app.post("/usersName/")
-def addUser(username:str, password:str ):# -> set[dict[str, Any]] | None:# -> set[dict[str, Any]] | None: 
-    if collection.find_one({"userName": username}): # Check if the username already exists
-            raise HTTPException(status_code=404,detail="Already exists a same username")
+def addUser(username:str, password:str, db = Depends(getMongoDB(app))):# -> set[dict[str, Any]] | None:# -> set[dict[str, Any]] | None: 
+    if db.find_one({"userName": username}): # Check if the username already exists
+            raise userNameConflictError()
         
-    userId = collection.count_documents({}) + 1
+    userId = db.count_documents({}) + 1
 
     newUser = {
         "userId": userId,
@@ -32,7 +30,7 @@ def addUser(username:str, password:str ):# -> set[dict[str, Any]] | None:# -> se
     }
 
     #add user to the database and return the user
-    collection.insert_one(newUser)
+    db.insert_one(newUser)
     return {
         "userId":str(userId),
         "userName":username,}
@@ -42,15 +40,15 @@ youtube = build("youtube", "v3", developerKey="put your own")
 
 # Create a new music for a specific user
 @app.post("/usersMusic/")
-def addMusic(username:str, userMusic:str):
+def addMusic(username:str, userMusic:str, db = Depends(getMongoDB(app))):
     # Check if the user exists
-    if not collection.find_one({"userName":username
+    if not db.find_one({"userName":username
 }):
-        raise HTTPException(status_code=404, detail="User not found")
-    if collection.find_one({"userMusic.userMusic": {
+        raise userNameNotFoundError()
+    if db.find_one({"userMusic.userMusic": {
             "$regex": userMusic, "$options": "i"  # Case-insensitive match
         }}):
-        raise HTTPException(status_code=404, detail="Music already exists for this user")
+        raise songConflictError()
     #request to youtube api
     request = youtube.search().list(
     q= userMusic,
@@ -64,7 +62,7 @@ def addMusic(username:str, userMusic:str):
         "userMusic": userMusic,
         "musicId": response["items"][0]["id"]["videoId"],
     }
-    collection.update_one(
+    db.update_one(
         {"userName": username},
         {"$push": {"userMusic": newMusic}})
     return { 
@@ -74,35 +72,35 @@ def addMusic(username:str, userMusic:str):
 
 #get all music for a specific user
 @app.get("/usersMusics/")
-def getAllUserMusic(username:str):
-    if not collection.find_one({"userName":username}):
-        raise HTTPException(status_code=404, detail="User not found")
-    return list(collection.find({"userName": username}, {"_id": 0, "userMusic": 1}))
+def getAllUserMusic(username:str, db = Depends(getMongoDB(app))):
+    if not db.find_one({"userName":username}):
+        raise userNameNotFoundError()
+    return list(db.find({"userName": username}, {"_id": 0, "userMusic": 1}))
 
 #delete all users
 @app.delete("/usersName/all")
-def deleteAllUsers():
-    collection.delete_many({})
+def deleteAllUsers(db = Depends(getMongoDB(app))):
+    db.delete_many({})
     return {"mes.sage": "All users deleted successfully"}
 
 #delete a specific user
 @app.delete("/usersName/")
-def deleteUser(username:str):
-    if not collection.find_one({"userName": username}):
-        raise HTTPException(status_code=404, detail="User not found")
+def deleteUser(username:str, db = Depends(getMongoDB(app))):
+    if not db.find_one({"userName": username}):
+        raise userNameNotFoundError()
     
-    collection.delete_one({"userName": username})
+    db.delete_one({"userName": username})
     return {"message": "User deleted successfully"}
 
 #delete a specific music for a specific user
 @app.delete("/usersMusic/")
-def deleteMusic(username:str, userMusic:str):
+def deleteMusic(username:str, userMusic:str, db = Depends(getMongoDB(app))):
     # Check if the user exists
-    if not collection.find_one({"userName": username}):
-        raise HTTPException(status_code=404, detail="User not found")
+    if not db.find_one({"userName": username}):
+        raise userNameNotFoundError()   
     
     #delete the music
-    collection.update_one(
+    db.update_one(
         {"userName": username},
         {"$pull": {"userMusic": {"userMusic": {
             "$regex": userMusic, "$options": "i"  # Case-insensitive match
@@ -112,15 +110,15 @@ def deleteMusic(username:str, userMusic:str):
 
 # Get the number of users
 @app.get("/usersName/")
-def numberOfUsers():
-    userCount = collection.count_documents({})
+def numberOfUsers(db = Depends(getMongoDB(app))):
+    userCount = db.count_documents({})
     return {"userCount": userCount}
 
 @app.get("/checkingUserName/")
-def checkingUser(username:str,password:str):
-    user = collection.find_one({"userName": username, "passWord": password})
+def checkingUser(username:str,password:str, db = Depends(getMongoDB(app))):
+    user = db.find_one({"userName": username, "passWord": password})
     if not user:
-        raise HTTPException(status_code=404, detail="User not found or incorrect password")
+        raise userNameNotFoundError()
     
     return {
         "success": True,
@@ -129,9 +127,9 @@ def checkingUser(username:str,password:str):
 
 # Get user's ID by username
 @app.get("/getUserId/")
-def getUserId(username: str):
-    user = collection.find_one({"userName": username})
+def getUserId(username: str, db = Depends(getMongoDB(app))):
+    user = db.find_one({"userName": username})
     if not user:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise userNameNotFoundError()
     
     return {"userId": str(user["userId"])}
