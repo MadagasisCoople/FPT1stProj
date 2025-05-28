@@ -1,7 +1,7 @@
 from infrastructure.mongoDB import getMongoDB
 from domain.Schema import Musics, userNames
 from googleapiclient.discovery import build
-
+print("Music repository initialized")
 
 class musicRepository:
     

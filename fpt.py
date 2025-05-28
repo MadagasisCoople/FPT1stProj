@@ -3,7 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from api.route.userNameRoute import router as userRouter
 from api.route.musicRoute import router as musicRouter
 from core.lifespan import lifeSpanConnect
-
+print("Starting FastAPI application...")
 app = FastAPI(lifespan=lifeSpanConnect)
 
 app.add_middleware(

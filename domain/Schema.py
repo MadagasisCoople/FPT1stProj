@@ -1,6 +1,6 @@
 from typing import Optional 
 from pydantic import BaseModel
-
+print("Schema module initialized")
 
 class Musics(BaseModel):
     userMusic: str

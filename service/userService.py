@@ -1,7 +1,7 @@
 import infrastructure.mongoDB as mongoDB
 from domain.Schema import userNames, Musics
 from domain.Error import userNameConflictError, songConflictError, userNameNotFoundError, songNotFoundError
-
+print("User service initialized")
 class userService:
     
     async def addUser(self,username:str, db):

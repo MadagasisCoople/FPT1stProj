@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from infrastructure.mongoDB import getMongoDB
 from repositories.userRepository import userRepository
 from service.userService import userService
-
+print("User route initialized")
 router = APIRouter()
 
 userRepositorys = userRepository()

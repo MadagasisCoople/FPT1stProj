@@ -1,7 +1,7 @@
 from infrastructure.mongoDB import getMongoDB
 from domain.Schema import Musics, userNames
 from domain.Error import userNameConflictError, songConflictError, userNameNotFoundError, songNotFoundError 
-
+print("Music service initialized")
 class musicService:
 
     @staticmethod

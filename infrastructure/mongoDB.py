@@ -1,6 +1,7 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 
 class mongoDB:
+    print("MongoDB connection initialized")
     client: AsyncIOMotorClient
     db = None
 

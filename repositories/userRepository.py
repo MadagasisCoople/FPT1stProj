@@ -1,5 +1,6 @@
 from infrastructure.mongoDB import mongoDB
 from domain.Schema import userNames, Musics
+print("User repository initialized")
 
 class userRepository:
     
