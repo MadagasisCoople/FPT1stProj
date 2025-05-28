@@ -1,13 +1,11 @@
 from fastapi import FastAPI, HTTPException
-from username_song.domain.userName import userNames, Music
+from domain.Schema import userNames, Musics
 from googleapiclient.discovery import build
-from pymongo import MongoClient
+from core.lifespan import lifespanConnect
 from fastapi.middleware.cors import CORSMiddleware
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespanConnect)
 
-client = MongoClient("mongodb://host.docker.internal:27017/")
-db = client["userdb"]
 collection = db["userNameList"]
 
 app.add_middleware(
