@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from domain.Schema import userNames, Musics
 from googleapiclient.discovery import build
 from core.lifespan import lifespanConnect
