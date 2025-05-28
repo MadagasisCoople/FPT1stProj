@@ -1,6 +1,5 @@
 from fastapi import FastAPI, HTTPException
-from userName import userNames, Musics
-from typing import List
+from username_song.domain.userName import userNames, Music
 from googleapiclient.discovery import build
 from pymongo import MongoClient
 from fastapi.middleware.cors import CORSMiddleware
