@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from domain.Schema import userNames, Musics
 from googleapiclient.discovery import build
 from core.lifespan import lifespanConnect
@@ -81,7 +81,7 @@ def getAllUserMusic(username:str, db = Depends(getMongoDB(app))):
 @app.delete("/usersName/all")
 def deleteAllUsers(db = Depends(getMongoDB(app))):
     db.delete_many({})
-    return {"mes.sage": "All users deleted successfully"}
+    return {"message": "All users deleted successfully"}
 
 #delete a specific user
 @app.delete("/usersName/")
