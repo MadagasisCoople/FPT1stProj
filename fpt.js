@@ -116,7 +116,7 @@ function submitLogin(event) {
 
 
 //Function to sign up
-function sumbitSignup(event) {
+function submitSignup(event) {
 
     event.preventDefault(); // Stop normal form submission
 
@@ -137,9 +137,10 @@ function sumbitSignup(event) {
         // Handle the response
         .then(response => response.json())
         .then(data => {
-            if (data.success) { 
+            if (data.success) {
                 console.log('User added:', data)
-                openWelcomePage(); }
+                openWelcomePage();
+            }
         })
         .catch(error => console.error('Error:', error));
 }
@@ -147,25 +148,44 @@ function sumbitSignup(event) {
 
 //Function to open the login page
 function openLoginPage() {
-    if(form.contains(document.getElementsByClassName("userNames")[0])){
-    document.getElementsByClassName("userNames")[0].innerHTML = "May I have your account name please?"
-    document.getElementsByClassName("passWords")[0].innerHTML = "Tell me a secret. *Your password*"} 
+
+    console.log("Open login page")
+
+    //Form label setup
+    if (form.contains(document.getElementsByClassName("userNames")[0])) {
+        document.getElementsByClassName("userNames")[0].innerHTML = "May I have your account name please?"
+        document.getElementsByClassName("passWords")[0].innerHTML = "Tell me a secret. *Your password*"
+    }
+
+    //Form setup
     body.appendChild(form)
     form.appendChild(signUpButtonWrapper)
     if (body.contains(musicContainer)) body.removeChild(musicContainer);
     if (!form.contains(inputPassWordWrapper)) body.appendChild(inputPassWordWrapper);
+
+    //Handling submit button
     submitButton.innerHTML = "Songs comin for ya!";
-    signUpButtonWrapper.removeEventListener("click",openLoginPage)
+    signUpButtonWrapper.removeEventListener("click", openLoginPage)
     signUpButtonWrapper.addEventListener("click", openSignUpPage)
+    submitButton.addEventListener("click", submitLogin)
+    submitButton.removeEventListener("click", sumbitSignup)
 }
 
 //function to open the sign up ppage
 function openSignUpPage() {
+
+    console.log("open Signup page")
+
+    //Form label setup
     document.getElementsByClassName("userNames")[0].innerHTML = "Time to sign up your username!"
     document.getElementsByClassName("passWords")[0].innerHTML = "And your password?"
+
+    //submit button setup
+    submitButton.removeEventListener("click", submitLogin)
+    submitButton.addEventListener("click", submitSignup)
     signUpButton.innerHTML = "Thinking again?"
-    signUpButton.removeEventListener("click",openSignUpPage)
-    signUpButtonWrapper.addEventListener("click",openLoginPage)
+    signUpButtonWrapper.removeEventListener("click", openSignUpPage)
+    signUpButtonWrapper.addEventListener("click", openLoginPage)
 }
 
 

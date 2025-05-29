@@ -15,6 +15,7 @@ class userRepository:
         }
         await collection.insert_one(newUser)
         return {
+            "success":"True",
             "userId":str(userId),
             "userName":username,
         }
