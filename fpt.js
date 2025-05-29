@@ -22,7 +22,6 @@ const inputPassWord = document.getElementById('inputPassWord')
 const deleteButton = document.getElementById('deleteButton')
 const deleteButtonWrapper = document.getElementById('deleteButtons')
 
-
 // temporary remove the part that are unecessary "yet from the body
 form.removeChild(deleteButtonWrapper)
 body.removeChild(form)
@@ -37,6 +36,7 @@ var numberOfUsers = 0;
 var username = "";
 var password = "";
 var musicInput = "";
+const apiURL = `http://localhost:8000` // Base URL for the API
 
 //All the existing functions that are used in the HTML file
 
@@ -45,7 +45,7 @@ function loadingPageBasedOnUserCount() {
     console.log("Loading page based on user count...");
 
     //run numberOfUsers route
-    fetch('http://localhost:8000/usersName/')
+    fetch('http://localhost:8000/numberOfUsers')
         .then(response => response.json())
         .then(data => { 
             numberOfUsers = data.userCount || 0; // Get the user count from the response, default to 0 if not present
@@ -74,7 +74,7 @@ function loadingPageBasedOnUserCount() {
 // Function to call the Python backend's getAllUserMusic route and display it in the list
 
 function getAllUserMusic() {
-    fetch(`http://localhost:8000/usersMusics/?username=${encodeURIComponent(username)}`)
+    fetch(`http://localhost:8000/getAllUserMusic/?username=${encodeURIComponent(username)}`)
         .then(response => response.json())
         .then(data => {
             console.log('Music data received:', data.userMusic);
@@ -111,7 +111,7 @@ function submitLogin(event) {
         event.preventDefault(); // Stop normal form submission
 
         // Create the URL with values from the input fields
-        let url = `http://localhost:8000/usersName/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`;
+        let url = `http://localhost:8000/addUser/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`;
 
         // send a POST request to the Python backend
         fetch(url, {
@@ -129,7 +129,7 @@ function submitLogin(event) {
     else {
         //Function to handle the login form submission
         //making the url 
-        let url = `http://localhost:8000/checkingUserName/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`
+        let url = `http://localhost:8000/checkingUser/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`
         fetch(url, {
             method: 'GET'
         })
@@ -193,7 +193,7 @@ function addMusic(event) {
     musicInput = document.getElementsByClassName('userNames')[1].value;
 
     // Create the URL with values from the input fields
-    let url = `http://localhost:8000/usersMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(musicInput)}`;
+    let url = `http://localhost:8000/addMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(musicInput)}`;
 
     // send a POST request to the Python backend
     fetch(url, {
@@ -218,7 +218,7 @@ function deleteMusic(event) {
     event.preventDefault(); // Stop normal form submission
 
     musicInput = inputUserName.value
-    fetch(`http://localhost:8000/usersMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(musicInput)}`, {
+    fetch(`http://localhost:8000/deleteMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(musicInput)}`, {
         method: 'DELETE'
     }
     )

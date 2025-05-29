@@ -33,7 +33,8 @@ class musicRepository:
 
     async def getAllUserMusic(self, username: str, db):
         collection = db["users"]
-        result = collection.find({"userName": username}, {"_id": 0, "userMusic": 1})
+        cursor = collection.find({"userName": username}, {"_id": 0, "userMusic": 1})
+        result = await cursor.to_list(length=None)
         return result
 
     async def deleteMusic(self, username: str, userMusic: str, db):

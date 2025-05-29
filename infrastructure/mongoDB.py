@@ -8,7 +8,7 @@ class mongoDB:
     @classmethod
     async def connectMongo(cls) -> None:
         cls.client = AsyncIOMotorClient("mongodb://host.docker.internal:27017/")
-        cls.db = cls.client["userdb"]
+        cls.db = cls.client["fpt"]
 
     @classmethod
     async def closeMongo(cls) -> None:
