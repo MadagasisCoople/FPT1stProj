@@ -191,8 +191,9 @@ function openSignUpPage() {
 
 //function to open the welcome page
 function openWelcomePage() {
-    getAllUserMusic();
-    body.prepend(musicContainer);
+    getAllUserMusic()
+    body.prepend(musicContainer)
+    form.removeChild(signUpButtonWrapper)
     submitButton.innerHTML = "You want to add more music?";
     submitButton.addEventListener("click", openAddMusicPage);
     form.removeChild(document.getElementsByClassName("passWords")[0]);
