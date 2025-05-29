@@ -6,18 +6,28 @@ class musicService:
 
     @staticmethod
     async def addMusic(username: str, userMusic: str, db):
-        if not db.find_one({"userName":username}):
+        collection = db["users"]
+        user = await collection.find_one({"userName": username})
+        if not user:
             raise userNameNotFoundError()
-        if db.find_one({"userMusic.userMusic": {"$regex": userMusic, "$options": "i"  # Case-insensitive match
-        }}):
+        
+        music = await collection.find_one({
+            "userName": username,
+            "userMusic.userMusic": {"$regex": userMusic, "$options": "i"}
+        })
+        if music:
             raise songConflictError()
         
     @staticmethod
     async def getAllUserMusic(username: str, db):
-        if not db.find_one({"userName":username}):
+        collection = db["users"]
+        user = await collection.find_one({"userName": username})
+        if not user:
             raise userNameNotFoundError()
         
     @staticmethod
     async def deleteMusic(username:str, userMusic:str, db):
-        if not db.find_one({"userName": username}):
+        collection = db["users"]
+        user = await collection.find_one({"userName": username})
+        if not user:
             raise userNameNotFoundError()

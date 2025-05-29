@@ -4,7 +4,7 @@ print("Schema module initialized")
 
 class Musics(BaseModel):
     userMusic: str
-    userMusicID: Optional[int] = None
+    userMusicId: Optional[int] = None
 
 class userNames(BaseModel):
     userId: int
