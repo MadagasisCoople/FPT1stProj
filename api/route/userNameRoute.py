@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from infrastructure.mongoDB import getMongoDB
 from repositories.userRepository import userRepository
 from service.userService import userService
-
+print("User route initialized")
 router = APIRouter()
 
 userRepositorys = userRepository()
@@ -14,7 +14,7 @@ async def add_user(username: str, password: str, db = Depends(getMongoDB)):
     return await userRepositorys.addUser(username, password, db)
 
 @router.delete("/deleteAllUsers")
-async def deleteAllUsers(username: str, db = Depends(getMongoDB)):
+async def deleteAllUsers(db = Depends(getMongoDB)):
     return await userRepositorys.deleteAllUsers(db)
 
 @router.delete("/deleteUser")

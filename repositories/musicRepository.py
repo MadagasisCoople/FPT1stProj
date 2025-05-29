@@ -1,12 +1,12 @@
 from infrastructure.mongoDB import getMongoDB
 from domain.Schema import Musics, userNames
 from googleapiclient.discovery import build
-
+print("Music repository initialized")
 
 class musicRepository:
     
     async def addMusic(self, username: str, userMusic: str, db):
-        youtube = build("youtube", "v3", developerKey="put your own")
+        youtube = build("youtube", "v3", developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
 
         request = youtube.search().list(
             q=userMusic,
@@ -20,20 +20,26 @@ class musicRepository:
             "musicId": response["items"][0]["id"]["videoId"],
         }
 
-        db.update_one(
-        {"userName": username},
-        {"$push": {"userMusic": newMusic}})
+        collection = db["users"]
+        await collection.update_one(
+            {"userName": username},
+            {"$push": {"userMusic": newMusic}}
+        )
 
         return {
-        "userMusic": userMusic,
-        "musicId": response["items"][0]["id"]["videoId"]
-    }
+            "userMusic": userMusic,
+            "musicId": response["items"][0]["id"]["videoId"]
+        }
 
     async def getAllUserMusic(self, username: str, db):
-        return list(db.find({"userName": username}, {"_id": 0, "userMusic": 1}))
+        collection = db["users"]
+        cursor = collection.find({"userName": username}, {"_id": 0, "userMusic": 1})
+        result = await cursor.to_list(length=None)
+        return result
 
     async def deleteMusic(self, username: str, userMusic: str, db):
-        db.update_one(
+        collection = db["users"]
+        await collection.update_one(
             {"userName": username},
             {"$pull": {"userMusic": {"userMusic": {
                 "$regex": userMusic, "$options": "i"  # Case-insensitive match

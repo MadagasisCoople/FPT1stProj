@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from infrastructure.mongoDB import getMongoDB
 from repositories.musicRepository import musicRepository
 from service.musicService import musicService
+print("Music route initialized")
 
 router = APIRouter()
 

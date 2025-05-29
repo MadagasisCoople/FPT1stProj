@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-
+print("Error module initialized")
 class userNameConflictError(HTTPException):
     def __init__(self, detail: str = "Already got that username."):
         super().__init__(status_code=409, detail=detail)
