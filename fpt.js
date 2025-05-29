@@ -77,7 +77,6 @@ function getAllUserMusic() {
     fetch(`http://localhost:8000/getAllUserMusic/?username=${encodeURIComponent(username)}`)
         .then(response => response.json())
         .then(data => {
-            console.log('Music data received:', data.userMusic);
             // Assuming the response is a JSON object with a 'music' property
             musicList = data[0].userMusic || []; // Use an empty array if 'music' is not present
             console.log('Music List:', musicList);
@@ -204,13 +203,11 @@ function addMusic(event) {
         .then(response => response.json())
         .then(data => {
             body.prepend(musicContainer);
-            console.log('Music added:', data);
             // Refresh the music list after adding new music
-            getAllUserMusic();
         })
         .catch(error => console.error('Error:', error));
-
-    resetForm();
+        getAllUserMusic();
+        resetForm();
 }
 
 // Function to delete music from the user
@@ -222,8 +219,11 @@ function deleteMusic(event) {
         method: 'DELETE'
     }
     )
-    getAllUserMusic();
+    .catch(error => console.error('Error:', error));
+    
     resetForm()
+    getAllUserMusic();
+    console.log('Gay')
 }
 
 // Function to reset the form      
