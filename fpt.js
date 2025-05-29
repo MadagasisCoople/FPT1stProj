@@ -8,9 +8,6 @@ const buttonWrapper = document.getElementsByClassName('button')
 const form = document.getElementById("formLinkPython")
 const body = document.getElementById("mainBody")
 const headLine = document.getElementById("headLine")
-//submit button and its wrapper
-const submitButton = document.getElementById("submitButton")
-const submitButtonWrapper = document.getElementById('submitButtons')
 //music container
 const musicContainer = document.getElementById('musicContainer')
 //input and wrapper field for username and password
@@ -18,30 +15,38 @@ const inputUserNameWrapper = document.getElementsByClassName('input')[0]
 const inputPassWordWrapper = document.getElementsByClassName('input')[1]
 const inputUserName = document.getElementById('inputUserName')
 const inputPassWord = document.getElementById('inputPassWord')
+
+//Buttons
+
+//Sign up buttoms and its wrapper
+const signUpButtonWrapper = document.getElementById('signUpButtons')
+const signUpButton = document.getElementById('signUpButton')
 //delete button and its wrapper
 const deleteButton = document.getElementById('deleteButton')
 const deleteButtonWrapper = document.getElementById('deleteButtons')
+//submit button and its wrapper
+const submitButton = document.getElementById("submitButton")
+const submitButtonWrapper = document.getElementById('submitButtons')
 
 // temporary remove the part that are unecessary "yet from the body
 form.removeChild(deleteButtonWrapper)
 body.removeChild(form)
-body.removeChild(musicContainer);
+body.removeChild(musicContainer)
+form.removeChild(signUpButtonWrapper)
 
 // adding event listener to the form for first run
-form.addEventListener("submit", submitLogin);
-
+form.addEventListener("submit", submitLogin)
 
 //when loading the page, get how many users are there.
 window.addEventListener("load", loadingPageBasedOnUserCount);
 
-
 //variables
-var musicList = [];
-var numberOfUsers = 0;
-var username = "";
-var password = "";
-var musicInput = "";
-const apiURL = `http://localhost:8000` // Base URL for the API
+var musicList = []
+var numberOfUsers = 0
+var username = ""
+var password = ""
+var musicInput = ""
+const APIURL = `http://localhost:8000` // Base URL for the API
 
 //All the existing functions that are used in the HTML file
 
@@ -79,63 +84,90 @@ function loadingPageBasedOnUserCount() {
 
 function submitLogin(event) {
 
-    event.preventDefault(); // Stop normal form submission
     // Get the input value and modify it
     let userNameInput = inputUserName.value;
     let passWordInput = inputPassWord.value;
     username = userNameInput;
     password = passWordInput;
 
-    //first time login
-    if (numberOfUsers == 0) {
-        event.preventDefault(); // Stop normal form submission
+    event.preventDefault(); // Stop normal form submission
 
-        // Create the URL with values from the input fields
-        let url = `http://localhost:8000/addUser/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`;
+    //Function to handle the login form submission
+    //making the url 
+    let url = `http://localhost:8000/checkingUser/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`
+    fetch(url, {
+        method: 'GET'
+    })
 
-        // send a POST request to the Python backend
-        fetch(url, {
-            method: 'POST'
-        })
-
-            // Handle the response
-            .then(response => response.json())
-            .then(data => console.log('User added:', data))
-            .catch(error => console.error('Error:', error));
-        openWelcomePage();
-    }
-
-    //if there is already a user, then login
-    else {
-        //Function to handle the login form submission
-        //making the url 
-        let url = `http://localhost:8000/checkingUser/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`
-        fetch(url, {
-            method: 'GET'
-        })
-
-            //Handle the response
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    console.log('Login successful:', data);
-                    //open the welcome page
-                    openWelcomePage();
-                } else {
-                    console.error('Login failed:', data.message || data.message || data);
-                }
+        //Handle the response
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Login successful:', data);
+                //open the welcome page
+                openWelcomePage();
+            } else {
+                console.error('Login failed:', data.message || data.message || data);
             }
-            )
-    }
+        }
+        )
+        .catch(error => console.error('Error:', error));
 }
+
+
+//Function to sign up
+function sumbitSignup(event) {
+
+    event.preventDefault(); // Stop normal form submission
+
+    // Get the input value and modify it
+    let userNameInput = inputUserName.value;
+    let passWordInput = inputPassWord.value;
+    username = userNameInput;
+    password = passWordInput;
+
+    // Create the URL with values from the input fields
+    let url = `http://localhost:8000/addUser/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`;
+
+    // send a POST request to the Python backend
+    fetch(url, {
+        method: 'POST'
+    })
+
+        // Handle the response
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) { 
+                console.log('User added:', data)
+                openWelcomePage(); }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
 
 //Function to open the login page
 function openLoginPage() {
+    if(form.contains(document.getElementsByClassName("userNames")[0])){
+    document.getElementsByClassName("userNames")[0].innerHTML = "May I have your account name please?"
+    document.getElementsByClassName("passWords")[0].innerHTML = "Tell me a secret. *Your password*"} 
     body.appendChild(form)
+    form.appendChild(signUpButtonWrapper)
     if (body.contains(musicContainer)) body.removeChild(musicContainer);
     if (!form.contains(inputPassWordWrapper)) body.appendChild(inputPassWordWrapper);
     submitButton.innerHTML = "Songs comin for ya!";
+    signUpButtonWrapper.removeEventListener("click",openLoginPage)
+    signUpButtonWrapper.addEventListener("click", openSignUpPage)
 }
+
+//function to open the sign up ppage
+function openSignUpPage() {
+    document.getElementsByClassName("userNames")[0].innerHTML = "Time to sign up your username!"
+    document.getElementsByClassName("passWords")[0].innerHTML = "And your password?"
+    signUpButton.innerHTML = "Thinking again?"
+    signUpButton.removeEventListener("click",openSignUpPage)
+    signUpButtonWrapper.addEventListener("click",openLoginPage)
+}
+
 
 //function to open the welcome page
 function openWelcomePage() {
@@ -238,12 +270,11 @@ function getAllUserMusic() {
 
             // Populate the music list
             musicList.forEach(music => {
-                console.log('Music List:', musicList);
                 const musicItem = document.createElement('li');
                 musicItem.innerHTML = music.userMusic;
                 musicContainer.appendChild(musicItem);
             });
         })
-
         .catch(error => console.error('Fetch error:', error));
+    console.log('Music List:', musicList);
 }
