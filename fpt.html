@@ -1,41 +1,53 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="fpt.css">
     <title>MUSIC FOR EVERYBODY!!!</title>
 </head>
-<body id = "mainBody">
-    <h1 id="headLine">Loading ....</h1>
-    
-    <!-- Simple form that sends data to your Python endpoint -->
-    <form id="formLinkPython">
-        <label class="question userNames" for="userName">May I have your account name please?</label><br>
-        
-        <div class = "input">
-        <input type="text" class="queries userNames" id = "inputUserName" name="userName" required><br>
-        </div>
-        
-        <label class="question passWords" for="passWord">Tell me a secret. *Your password*</label><br>
-        
-        <div class = "input" >
-        <input type="text" class="queries passWords" id = "inputPassWord" name="passWord"><br>
-        </div>
-        
-        <nav class="button" id="submitButtons">
-        <button id="submitButton" type="submit">Song coming for ya!</button>
-        </nav>
-        <nav class="button" id="deleteButtons">
-        <button id="deleteButton" type="submit">Delete music</button>
-        </nav>
-        <nav class="button" id="signUpButtons">
-        <button id="signUpButton" type="button">New life is waiting~~</button>
-        </nav>    
-    </form> 
-    
-    <ul id="musicContainer">Your music:</ul>
+
+<body class="body" id="mainBody">
+
+    <nav class="backGround" id="musicWebsite">
+
+        <h1 id="headLine">Loading ....</h1>
+        <!-- Simple form that sends data to your Python endpoint -->
+        <form id="formLinkPython">
+            <label class="question userNames" for="userName">May I have your account name please?</label><br>
+
+            <div class="input">
+                <input type="text" class="queries userNames" id="inputUserName" name="userName" required><br>
+            </div>
+
+            <label class="question passWords" for="passWord">Tell me a secret. *Your password*</label><br>
+
+            <div class="input">
+                <input type="text" class="queries passWords" id="inputPassWord" name="passWord"><br>
+            </div>
+
+            <nav class="button" id="submitButtons">
+                <button id="submitButton" type="submit">Song coming for ya!</button>
+            </nav>
+            <nav class="button" id="deleteButtons">
+                <button id="deleteButton" type="submit">Delete music</button>
+            </nav>
+            <nav class="button" id="signUpButtons">
+                <button id="signUpButton" type="button">New life is waiting~~</button>
+            </nav>
+        </form>
+        <ul id="musicContainer">Your music:</ul>
+    </nav>
+
+    <nav class="backGround" id="chessGameWebsite">
+        <div id="addCard">Add new card for your deck!</div>
+        <div id="removeCard">Remove card from your deck!</div>
+        <div id="getAllUsersCards">Show all your cards in your deck!</div>
+        <div id="battleCards">Battle with someone of your choice deck!</div>
+    </nav>
     <script src="fpt.js"></script>
 
 </body>
+
 </html>
