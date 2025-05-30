@@ -12,4 +12,10 @@ class userNames(BaseModel):
     passWord: Optional[str]
     userMusic: Optional[list[Musics]] = []
 
+class cardNames(BaseModel):
+    cardId: str
+    cardName: str
+    power: int
+    specialPower: Optional[int]
+    
     
