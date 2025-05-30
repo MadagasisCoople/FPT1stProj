@@ -2,11 +2,11 @@ from infrastructure.mongoDB import getMongoDB
 from domain.Schema import Musics, userNames
 from googleapiclient.discovery import build
 print("Music repository initialized")
-youtube = build("youtube", "v3", developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
 
 class musicRepository:
     
     async def addMusic(self, username: str, userMusic: str, db):
+        youtube = build("youtube", "v3", developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
 
         request = youtube.search().list(
             q=userMusic,
@@ -33,7 +33,7 @@ class musicRepository:
 
     async def getAllUserMusic(self, username: str, db):
         collection = db["users"]
-        cursor = collection.find({"userName": username}, {"_id": 0, "userMusic": 1})
+        cursor = collection.find({"userName": username}, {"_id": 0, "userMusic": 1, "userMusicId": 1})
         result = await cursor.to_list(length=None)
         return result
 
@@ -45,4 +45,4 @@ class musicRepository:
                 "$regex": userMusic, "$options": "i"  # Case-insensitive match
             }}}}
         )
-        return {"message": userMusic + " deleted successfully"}
+        return {"message": "Music deleted successfully"}
