@@ -5,12 +5,15 @@ const inputs = document.getElementsByTagName("input")
 //all wrapper
 const buttonWrapper = document.getElementsByClassName('button')
 //form, body, headline and others HTML holder elements
+const musicWebsite = document.getElementById("musicWebsite")
 const form = document.getElementById("formLinkPython")
 const body = document.getElementById("mainBody")
 const headLine = document.getElementById("headLine")
 //music container
 const musicContainer = document.getElementById('musicContainer')
 //input and wrapper field for username and password
+const lableInputUserName = document.getElementsByClassName("userNames")[0]
+const labelInputPassWord = document.getElementsByClassName("passWords")[0]
 const inputUserNameWrapper = document.getElementsByClassName('input')[0]
 const inputPassWordWrapper = document.getElementsByClassName('input')[1]
 const inputUserName = document.getElementById('inputUserName')
@@ -28,11 +31,19 @@ const deleteButtonWrapper = document.getElementById('deleteButtons')
 const submitButton = document.getElementById("submitButton")
 const submitButtonWrapper = document.getElementById('submitButtons')
 
+//chess Game properties
+const chessGameWeb = document.getElementById("chessGameWebsite")
+const addCard = document.getElementById("addCard")
+const getAllUsersCards = document.getElementById("getAllUsersCards")
+const removeCard = document.getElementById("removeCard")
+const battleCards = document.getElementById("battleCards") 
+
 // temporary remove the part that are unecessary "yet from the body
 form.removeChild(deleteButtonWrapper)
-body.removeChild(form)
-body.removeChild(musicContainer)
+musicWebsite.removeChild(form)
+musicWebsite.removeChild(musicContainer)
 form.removeChild(signUpButtonWrapper)
+body.removeChild(chessGameWeb)
 
 // adding event listener to the form for first run
 form.addEventListener("submit", submitLogin)
@@ -66,13 +77,13 @@ function loadingPageBasedOnUserCount() {
                 headLine.innerHTML = "Welcome to my~~~~ Worldddddd! Are you ready to dip into the world of music?Click on me to hop on!"
                 headLine.addEventListener("click", function () {
                     openLoginPage();
-                    body.removeChild(headLine)
+                    musicWebsite.removeChild(headLine)
                 })
             }
 
             else if (data.userCount > 0) {
                 //if already got data, move to the login part.
-                body.removeChild(headLine)
+                musicWebsite.removeChild(headLine)
                 openLoginPage()
             }
         })
@@ -106,6 +117,8 @@ function submitLogin(event) {
                 console.log('Login successful:', data);
                 //open the welcome page
                 openWelcomePage();
+                submitButton.removeEventListener("click",submitLogin)
+                signUpButtonWrapper.removeEventListener("click",openSignUpPage)
             } else {
                 console.error('Login failed:', data.message || data.message || data);
             }
@@ -140,6 +153,8 @@ function submitSignup(event) {
             if (data.success) {
                 console.log('User added:', data)
                 openWelcomePage();
+                submitButton.removeEventListener("click",submitSignup)
+                signUpButtonWrapper.removeEventListener("click",openLoginPage)
             }
         })
         .catch(error => console.error('Error:', error));
@@ -151,6 +166,8 @@ function openLoginPage() {
 
     console.log("Open login page")
 
+    musicWebsite.appendChild(form)
+
     //Form label setup
     if (form.contains(document.getElementsByClassName("userNames")[0])) {
         document.getElementsByClassName("userNames")[0].innerHTML = "May I have your account name please?"
@@ -158,17 +175,16 @@ function openLoginPage() {
     }
 
     //Form setup
-    body.appendChild(form)
     form.appendChild(signUpButtonWrapper)
-    if (body.contains(musicContainer)) body.removeChild(musicContainer);
-    if (!form.contains(inputPassWordWrapper)) body.appendChild(inputPassWordWrapper);
+    if (musicWebsite.contains(musicContainer)) musicWebsite.removeChild(musicContainer);
+    if (!form.contains(inputPassWordWrapper)) form.appendChild(inputPassWordWrapper);
 
     //Handling submit button
     submitButton.innerHTML = "Songs comin for ya!";
     signUpButtonWrapper.removeEventListener("click", openLoginPage)
     signUpButtonWrapper.addEventListener("click", openSignUpPage)
     submitButton.addEventListener("click", submitLogin)
-    submitButton.removeEventListener("click", sumbitSignup)
+    submitButton.removeEventListener("click", submitSignup)
 }
 
 //function to open the sign up ppage
@@ -192,12 +208,19 @@ function openSignUpPage() {
 //function to open the welcome page
 function openWelcomePage() {
     getAllUserMusic()
-    body.prepend(musicContainer)
-    form.removeChild(signUpButtonWrapper)
+    musicWebsite.prepend(musicContainer)
+    
+    //tke time till we need it again so but here to avoid error when we need to open Welcome page again
+    if(form.contains(labelInputPassWord)) form.removeChild(labelInputPassWord)
+    if(form.contains(inputPassWordWrapper)) form.removeChild(inputPassWordWrapper);
+    if(!form.contains(signUpButtonWrapper)) form.appendChild(signUpButtonWrapper)
+
     submitButton.innerHTML = "You want to add more music?";
     submitButton.addEventListener("click", openAddMusicPage);
-    form.removeChild(document.getElementsByClassName("passWords")[0]);
-    form.removeChild(inputPassWordWrapper);
+    
+    signUpButton.innerHTML = "Wanna have some games?"
+    signUpButton.addEventListener("click",openChessGamePage)
+
     document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!";
     form.removeChild(inputUserNameWrapper)
 }
@@ -205,11 +228,11 @@ function openWelcomePage() {
 // function to open the add music route page
 function openAddMusicPage(event) {
 
-    form.removeEventListener("submit", submitLogin);
     event.preventDefault(); // Stop normal form submission
 
     //Taking out the inputing box
 
+    form.removeChild(signUpButtons)
     form.insertBefore(inputUserNameWrapper, submitButtonWrapper);
     submitButton.removeEventListener("click", openAddMusicPage);
 
@@ -276,6 +299,7 @@ function resetForm() {
     document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!"
     submitButton.addEventListener("click", openAddMusicPage);
     form.removeChild(deleteButtonWrapper);
+    if(!(form.contains(signUpButtonWrapper))) form.appendChild(signUpButtonWrapper)
 }
 
 // Function to call the Python backend's getAllUserMusic route and display it in the list
@@ -292,10 +316,19 @@ function getAllUserMusic() {
             // Populate the music list
             musicList.forEach(music => {
                 const musicItem = document.createElement('li');
-                musicItem.innerHTML = music.userMusic;
+                musicItem.innerHTML = music.userMusic+" ("+music.musicId+")";
                 musicContainer.appendChild(musicItem);
             });
         })
         .catch(error => console.error('Fetch error:', error));
     console.log('Music List:', musicList);
+}
+
+function openChessGamePage(){
+
+    event.preventDefault();
+
+    body.appendChild(chessGameWeb)
+    body.removeChild(musicWebsite)
+
 }

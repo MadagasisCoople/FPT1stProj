@@ -27,3 +27,10 @@ button{
     width: 20%;
     height: 80px;
 }
+html, body {
+    height: 100%;
+    margin: 0;
+}
+.backGround{
+    min-height: 100%;
+}
