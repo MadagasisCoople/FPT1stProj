@@ -58,6 +58,10 @@ var username = ""
 var password = ""
 var musicInput = ""
 const APIURL = `http://localhost:8000` // Base URL for the API
+var STATE = ""
+var cardId1 = ""
+var username2 = ""
+var cardId2 = ""
 
 //All the existing functions that are used in the HTML file
 
@@ -331,7 +335,8 @@ function openChessGamePage(event) {
     body.appendChild(chessGameWeb)
     body.removeChild(musicWebsite)
     addCard.addEventListener("click", openAddCardPage)
-    removeCard.addEventListener("click",openRemoveCardPage)
+    removeCard.addEventListener("click", openRemoveCardPage)
+    battleCards.addEventListener("click", openBattleCardPage)
 
     getAllUsersCards()
 }
@@ -444,3 +449,107 @@ function submitRemoveCard() {
             removeCard.addEventListener("click", openRemoveCardPage);
         });
 }
+
+function submitBattleButtonCard(value) {
+    if (!value || value.trim() === "") {
+        console.error("Please enter a valid value");
+        return false;
+    }
+    
+    switch(STATE){
+        case "player1 card": 
+            cardId1 = value;
+            break;
+        case "player2 name": 
+            username2 = value;
+            break;
+        case "player2 card": 
+            cardId2 = value;
+            break;
+    }
+    return true;
+}
+
+function resetBattleState() {
+    STATE = "";
+    cardId1 = "";
+    username2 = "";
+    cardId2 = "";
+}
+
+function openBattleCardPage() {
+    if (!battleCards.contains(document.getElementById("inputBattleCards"))) {
+        const inputBattleCards = document.createElement("input")
+        inputBattleCards.id = "inputBattleCards"
+        document.getElementById("battleCards").appendChild(inputBattleCards)
+        const buttonBattleCards = document.createElement("button")
+        document.getElementById("battleCards").appendChild(buttonBattleCards)
+        buttonBattleCards.style.height = "20px"
+        buttonBattleCards.style.width = "18px"
+        buttonBattleCards.id = "buttonBattleCards"
+        buttonBattleCards.innerHTML = "+" // Add text to the button
+
+        battleCards.removeEventListener("click", openBattleCardPage)
+        buttonBattleCards.addEventListener("click",openBattleCardPage)}
+
+        if (STATE == "") {
+            STATE = "player1 card"
+            inputBattleCards.value = ""
+            inputBattleCards.placeholder = "Enter your card ID"
+        }
+
+        else if (STATE == "player1 card") {
+            if (!submitBattleButtonCard(inputBattleCards.value)) return;
+            inputBattleCards.value = ""
+            STATE = "player2 name"
+            inputBattleCards.placeholder = "Enter opponent's username"
+        }
+
+        else if (STATE == "player2 name") {
+            if (!submitBattleButtonCard(inputBattleCards.value)) return;
+            STATE = "player2 card"
+            inputBattleCards.value = ""
+            inputBattleCards.placeholder = "Enter opponent's card ID"
+        }
+        else if (STATE == "player2 card") {
+            if (!submitBattleButtonCard(inputBattleCards.value)) return;
+            inputBattleCards.value = ""
+            battleCards.removeChild(inputBattleCards)
+            battleCards.removeChild(buttonBattleCards)
+            battleCards.addEventListener("click",openBattleCardPage)
+            battleCards.removeEventListener("click",openBattleCardPage)
+            
+            fetch(`http://localhost:8000/battleCard/?userName1=${encodeURIComponent(username)}&userName2=${encodeURIComponent(username2)}&cardId1=${encodeURIComponent(cardId1)}&cardId2=${encodeURIComponent(cardId2)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Battle result:', data);
+                // Display battle result to user
+                const resultDiv = document.createElement('div');
+                resultDiv.innerHTML = `Battle Result: ${data.message}`;
+                battleCards.appendChild(resultDiv);
+                // Clean up after 3 seconds
+                setTimeout(() => {
+                    battleCards.removeChild(resultDiv);
+                }, 3000);
+            })
+            .catch(error => {
+                console.error('Error in battle:', error);
+                const errorDiv = document.createElement('div');
+                errorDiv.innerHTML = `Error: ${error.message}`;
+                errorDiv.style.color = 'red';
+                battleCards.appendChild(errorDiv);
+                // Clean up error message after 3 seconds
+                setTimeout(() => {
+                    battleCards.removeChild(errorDiv);
+                }, 3000);
+            })
+            .finally(() => {
+                resetBattleState(); // Reset all state variables
+            });
+        }
+    }
