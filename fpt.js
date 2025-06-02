@@ -36,7 +36,7 @@ const chessGameWeb = document.getElementById("chessGameWebsite")
 const addCard = document.getElementById("addCard")
 const allUsersCards = document.getElementById("getAllUsersCards")
 const removeCard = document.getElementById("removeCard")
-const battleCards = document.getElementById("battleCards") 
+const battleCards = document.getElementById("battleCards")
 
 // temporary remove the part that are unecessary "yet from the body
 form.removeChild(deleteButtonWrapper)
@@ -117,8 +117,8 @@ function submitLogin(event) {
                 console.log('Login successful:', data);
                 //open the welcome page
                 openWelcomePage();
-                submitButton.removeEventListener("click",submitLogin)
-                signUpButtonWrapper.removeEventListener("click",openSignUpPage)
+                submitButton.removeEventListener("click", submitLogin)
+                signUpButtonWrapper.removeEventListener("click", openSignUpPage)
             } else {
                 console.error('Login failed:', data.message || data.message || data);
             }
@@ -153,8 +153,8 @@ function submitSignup(event) {
             if (data.success) {
                 console.log('User added:', data)
                 openWelcomePage();
-                submitButton.removeEventListener("click",submitSignup)
-                signUpButtonWrapper.removeEventListener("click",openLoginPage)
+                submitButton.removeEventListener("click", submitSignup)
+                signUpButtonWrapper.removeEventListener("click", openLoginPage)
             }
         })
         .catch(error => console.error('Error:', error));
@@ -209,17 +209,17 @@ function openSignUpPage() {
 function openWelcomePage() {
     getAllUserMusic()
     musicWebsite.prepend(musicContainer)
-    
+
     //tke time till we need it again so but here to avoid error when we need to open Welcome page again
-    if(form.contains(labelInputPassWord)) form.removeChild(labelInputPassWord)
-    if(form.contains(inputPassWordWrapper)) form.removeChild(inputPassWordWrapper);
-    if(!form.contains(signUpButtonWrapper)) form.appendChild(signUpButtonWrapper)
+    if (form.contains(labelInputPassWord)) form.removeChild(labelInputPassWord)
+    if (form.contains(inputPassWordWrapper)) form.removeChild(inputPassWordWrapper);
+    if (!form.contains(signUpButtonWrapper)) form.appendChild(signUpButtonWrapper)
 
     submitButton.innerHTML = "You want to add more music?";
     submitButton.addEventListener("click", openAddMusicPage);
-    
+
     signUpButton.innerHTML = "Wanna have some games?"
-    signUpButton.addEventListener("click",openChessGamePage)
+    signUpButton.addEventListener("click", openChessGamePage)
 
     document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!";
     form.removeChild(inputUserNameWrapper)
@@ -299,7 +299,7 @@ function resetForm() {
     document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!"
     submitButton.addEventListener("click", openAddMusicPage);
     form.removeChild(deleteButtonWrapper);
-    if(!(form.contains(signUpButtonWrapper))) form.appendChild(signUpButtonWrapper)
+    if (!(form.contains(signUpButtonWrapper))) form.appendChild(signUpButtonWrapper)
 }
 
 // Function to call the Python backend's getAllUserMusic route and display it in the list
@@ -316,7 +316,7 @@ function getAllUserMusic() {
             // Populate the music list
             musicList.forEach(music => {
                 const musicItem = document.createElement('li');
-                musicItem.innerHTML = music.userMusic+" ("+music.musicId+")";
+                musicItem.innerHTML = music.userMusic + " (" + music.musicId + ")";
                 musicContainer.appendChild(musicItem);
             });
         })
@@ -324,17 +324,18 @@ function getAllUserMusic() {
     console.log('Music List:', musicList);
 }
 
-function openChessGamePage(event){
+function openChessGamePage(event) {
 
     event.preventDefault();
 
     body.appendChild(chessGameWeb)
     body.removeChild(musicWebsite)
+    addCard.addEventListener("click", openAddCardPage)
 
     getAllUsersCards()
 }
 
-function getAllUsersCards(){
+function getAllUsersCards() {
     fetch(`http://localhost:8000/getAllUserCards/?userName=${encodeURIComponent(username)}`)
         .then(response => response.json())
         .then(data => {
@@ -346,16 +347,54 @@ function getAllUsersCards(){
             // Populate the music list
             cards.forEach(card => {
                 const cardItem = document.createElement('li');
-                cardItem.innerHTML = "Card Name: "+ card.cardName + "<br>" +"Card Id: " + card.cardId + "<br>" + "Power: " + card.power
+                cardItem.innerHTML = "Card Name: " + card.cardName + "<br>" + "Card Id: " + card.cardId + "<br>" + "Power: " + card.power
                 allUsersCards.appendChild(cardItem);
             });
         })
         .catch(error => console.error('Fetch error:', error));
-    console.log('Cards list:', cards);
 }
 
-function openAddCardPage (){
+function openAddCardPage() {
+    if (!addCard.contains(document.getElementById("inputAddCard"))) {
+        const inputAddCard = document.createElement("input")
+        inputAddCard.id = "inputAddCard"
+        document.getElementById("addCard").appendChild(inputAddCard)
+        const buttonAddCard = document.createElement("button")
+        document.getElementById("addCard").appendChild(buttonAddCard)
+        buttonAddCard.style.height = "20px"
+        buttonAddCard.style.width = "18px"
+        buttonAddCard.id = "buttonAddCard"
+        buttonAddCard.innerHTML = "+" // Add text to the button
+        buttonAddCard.addEventListener("click", submitAddCard)
+        addCard.removeEventListener("click", openAddCardPage)
+    }
+}
+
+function submitAddCard() {
+    const cardId = document.getElementById("inputAddCard").value
     
+    fetch(`http://localhost:8000/addCard/?userName=${encodeURIComponent(username)}&musicId=${encodeURIComponent(cardId)}`, {
+        method: "POST"
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Card added successfully:', data);
+            getAllUsersCards(); // Refresh the cards list
+        })
+        .catch(error => {
+            console.error('Error adding card:', error);
+        })
+        .finally(() => {
+            // Clean up elements regardless of success/failure
+            const inputElement = document.getElementById("inputAddCard");
+            const buttonElement = document.getElementById("buttonAddCard");
+            if (inputElement) addCard.removeChild(inputElement);
+            if (buttonElement) addCard.removeChild(buttonElement);
+            addCard.addEventListener("click", openAddCardPage);
+        });
 }
-
-fetch(`http://localhost:8000/addCard/?userName=${encodeURI(username)}&?musicId=${encodeURI()}`)
