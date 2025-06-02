@@ -16,6 +16,4 @@ class cardNames(BaseModel):
     cardId: str
     cardName: str
     power: int
-    specialPower: Optional[int]
-    
-    
+    specialPower: Optional[int] 

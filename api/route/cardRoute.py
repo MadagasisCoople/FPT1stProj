@@ -8,7 +8,7 @@ router = APIRouter()
 cardRepositorys = cardRepository()
 cardServices = cardService()
 
-@router.post("/AddCard")
+@router.post("/addCard")
 async def addCard(userName:str,musicId:str,db=Depends(getMongoDB)):
     await cardServices.addCard(userName,musicId,db)
     return await cardRepositorys.addCard(userName,musicId,db)
@@ -18,7 +18,7 @@ async def removeCard(userName:str,cardId:str,db=Depends(getMongoDB)):
     await cardServices.removeCard(userName,cardId,db)
     return await cardRepositorys.removeCard(userName,cardId,db)
 
-@router.get("/getAllCards")
+@router.get("/getAllUserCards")
 async def getAllUserCards(userName:str,db=Depends(getMongoDB)):
     await cardServices.getAllUsersCards(userName,db)
     return await cardRepositorys.getAllUsersCards(userName,db)

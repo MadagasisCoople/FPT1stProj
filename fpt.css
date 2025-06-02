@@ -34,3 +34,6 @@ html, body {
 .backGround{
     min-height: 100%;
 }
+#addCard{
+    background-color: gray;
+}

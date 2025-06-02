@@ -1,9 +1,13 @@
 from motor.motor_asyncio import AsyncIOMotorClient
 
 class mongoDB:
-    print("MongoDB connection initialized")
-    client: AsyncIOMotorClient
-    db = None
+    def __init__(self):
+        self.connection_string = "mongodb://localhost:27017"
+        self.client = AsyncIOMotorClient(self.connection_string)
+        self.db = self.client.userNameSong
+        
+    def get_db(self):
+        return self.db
 
     @classmethod
     async def connectMongo(cls) -> None:

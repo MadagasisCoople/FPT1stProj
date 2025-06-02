@@ -34,9 +34,9 @@ const submitButtonWrapper = document.getElementById('submitButtons')
 //chess Game properties
 const chessGameWeb = document.getElementById("chessGameWebsite")
 const addCard = document.getElementById("addCard")
-const getAllUsersCards = document.getElementById("getAllUsersCards")
+const allUsersCards = document.getElementById("getAllUsersCards")
 const removeCard = document.getElementById("removeCard")
-const battleCards = document.getElementById("battleCards") 
+const battleCards = document.getElementById("battleCards")
 
 // temporary remove the part that are unecessary "yet from the body
 form.removeChild(deleteButtonWrapper)
@@ -58,6 +58,10 @@ var username = ""
 var password = ""
 var musicInput = ""
 const APIURL = `http://localhost:8000` // Base URL for the API
+var STATE = ""
+var cardId1 = ""
+var username2 = ""
+var cardId2 = ""
 
 //All the existing functions that are used in the HTML file
 
@@ -117,8 +121,8 @@ function submitLogin(event) {
                 console.log('Login successful:', data);
                 //open the welcome page
                 openWelcomePage();
-                submitButton.removeEventListener("click",submitLogin)
-                signUpButtonWrapper.removeEventListener("click",openSignUpPage)
+                submitButton.removeEventListener("click", submitLogin)
+                signUpButtonWrapper.removeEventListener("click", openSignUpPage)
             } else {
                 console.error('Login failed:', data.message || data.message || data);
             }
@@ -153,8 +157,8 @@ function submitSignup(event) {
             if (data.success) {
                 console.log('User added:', data)
                 openWelcomePage();
-                submitButton.removeEventListener("click",submitSignup)
-                signUpButtonWrapper.removeEventListener("click",openLoginPage)
+                submitButton.removeEventListener("click", submitSignup)
+                signUpButtonWrapper.removeEventListener("click", openLoginPage)
             }
         })
         .catch(error => console.error('Error:', error));
@@ -209,17 +213,17 @@ function openSignUpPage() {
 function openWelcomePage() {
     getAllUserMusic()
     musicWebsite.prepend(musicContainer)
-    
+
     //tke time till we need it again so but here to avoid error when we need to open Welcome page again
-    if(form.contains(labelInputPassWord)) form.removeChild(labelInputPassWord)
-    if(form.contains(inputPassWordWrapper)) form.removeChild(inputPassWordWrapper);
-    if(!form.contains(signUpButtonWrapper)) form.appendChild(signUpButtonWrapper)
+    if (form.contains(labelInputPassWord)) form.removeChild(labelInputPassWord)
+    if (form.contains(inputPassWordWrapper)) form.removeChild(inputPassWordWrapper);
+    if (!form.contains(signUpButtonWrapper)) form.appendChild(signUpButtonWrapper)
 
     submitButton.innerHTML = "You want to add more music?";
     submitButton.addEventListener("click", openAddMusicPage);
-    
+
     signUpButton.innerHTML = "Wanna have some games?"
-    signUpButton.addEventListener("click",openChessGamePage)
+    signUpButton.addEventListener("click", openChessGamePage)
 
     document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!";
     form.removeChild(inputUserNameWrapper)
@@ -299,7 +303,7 @@ function resetForm() {
     document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!"
     submitButton.addEventListener("click", openAddMusicPage);
     form.removeChild(deleteButtonWrapper);
-    if(!(form.contains(signUpButtonWrapper))) form.appendChild(signUpButtonWrapper)
+    if (!(form.contains(signUpButtonWrapper))) form.appendChild(signUpButtonWrapper)
 }
 
 // Function to call the Python backend's getAllUserMusic route and display it in the list
@@ -316,7 +320,7 @@ function getAllUserMusic() {
             // Populate the music list
             musicList.forEach(music => {
                 const musicItem = document.createElement('li');
-                musicItem.innerHTML = music.userMusic+" ("+music.musicId+")";
+                musicItem.innerHTML = music.userMusic + " (" + music.musicId + ")";
                 musicContainer.appendChild(musicItem);
             });
         })
@@ -324,11 +328,228 @@ function getAllUserMusic() {
     console.log('Music List:', musicList);
 }
 
-function openChessGamePage(){
+function openChessGamePage(event) {
 
     event.preventDefault();
 
     body.appendChild(chessGameWeb)
     body.removeChild(musicWebsite)
+    addCard.addEventListener("click", openAddCardPage)
+    removeCard.addEventListener("click", openRemoveCardPage)
+    battleCards.addEventListener("click", openBattleCardPage)
 
+    getAllUsersCards()
 }
+
+function getAllUsersCards() {
+    fetch(`http://localhost:8000/getAllUserCards/?userName=${encodeURIComponent(username)}`)
+        .then(response => response.json())
+        .then(data => {
+            // Assuming the response is a JSON object with a 'music' property
+            const cards = data[0].card || []; // Use an empty array if 'music' is not present
+            // Clear previous music list
+            allUsersCards.innerHTML = 'Your Cards List:';
+
+            // Populate the music list
+            cards.forEach(card => {
+                const cardItem = document.createElement('li');
+                cardItem.innerHTML = "Card Name: " + card.cardName + "<br>" + "Card Id: " + card.cardId + "<br>" + "Power: " + card.power
+                allUsersCards.appendChild(cardItem);
+            });
+        })
+        .catch(error => console.error('Fetch error:', error));
+}
+
+function openAddCardPage() {
+    if (!addCard.contains(document.getElementById("inputAddCard"))) {
+        const inputAddCard = document.createElement("input")
+        inputAddCard.id = "inputAddCard"
+        document.getElementById("addCard").appendChild(inputAddCard)
+        const buttonAddCard = document.createElement("button")
+        document.getElementById("addCard").appendChild(buttonAddCard)
+        buttonAddCard.style.height = "20px"
+        buttonAddCard.style.width = "18px"
+        buttonAddCard.id = "buttonAddCard"
+        buttonAddCard.innerHTML = "+" // Add text to the button
+        buttonAddCard.addEventListener("click", submitAddCard)
+        addCard.removeEventListener("click", openAddCardPage)
+    }
+}
+
+function openRemoveCardPage() {
+    if (!removeCard.contains(document.getElementById("inputRemoveCard"))) {
+        const inputRemoveCard = document.createElement("input")
+        inputRemoveCard.id = "inputRemoveCard"
+        document.getElementById("removeCard").appendChild(inputRemoveCard)
+        const buttonRemoveCard = document.createElement("button")
+        document.getElementById("removeCard").appendChild(buttonRemoveCard)
+        buttonRemoveCard.style.height = "20px"
+        buttonRemoveCard.style.width = "18px"
+        buttonRemoveCard.id = "buttonRemoveCard"
+        buttonRemoveCard.innerHTML = "+" // Add text to the button
+        buttonRemoveCard.addEventListener("click", submitRemoveCard)
+        removeCard.removeEventListener("click", openRemoveCardPage)
+    }
+}
+
+function submitAddCard() {
+    const cardId = document.getElementById("inputAddCard").value
+
+    fetch(`http://localhost:8000/addCard/?userName=${encodeURIComponent(username)}&musicId=${encodeURIComponent(cardId)}`, {
+        method: "POST"
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Card added successfully:', data);
+            getAllUsersCards(); // Refresh the cards list
+        })
+        .catch(error => {
+            console.error('Error adding card:', error);
+        })
+        .finally(() => {
+            // Clean up elements regardless of success/failure
+            const inputElement = document.getElementById("inputAddCard");
+            const buttonElement = document.getElementById("buttonAddCard");
+            if (inputElement) addCard.removeChild(inputElement);
+            if (buttonElement) addCard.removeChild(buttonElement);
+            addCard.addEventListener("click", openAddCardPage);
+        });
+}
+
+function submitRemoveCard() {
+    const cardId = document.getElementById("inputRemoveCard").value
+
+    fetch(`http://localhost:8000/removeCard/?userName=${encodeURIComponent(username)}&cardId=${encodeURIComponent(cardId)}`, {
+        method: "GET"
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Card removed successfully:', data);
+            getAllUsersCards(); // Refresh the cards list
+        })
+        .catch(error => {
+            console.error('Error removing card:', error);
+        })
+        .finally(() => {
+            // Clean up elements regardless of success/failure
+            const inputElement = document.getElementById("inputRemoveCard");
+            const buttonElement = document.getElementById("buttonRemoveCard");
+            if (inputElement) removeCard.removeChild(inputElement);
+            if (buttonElement) removeCard.removeChild(buttonElement);
+            removeCard.addEventListener("click", openRemoveCardPage);
+        });
+}
+
+function submitBattleButtonCard(value) {
+    if (!value || value.trim() === "") {
+        console.error("Please enter a valid value");
+        return false;
+    }
+    
+    switch(STATE){
+        case "player1 card": 
+            cardId1 = value;
+            break;
+        case "player2 name": 
+            username2 = value;
+            break;
+        case "player2 card": 
+            cardId2 = value;
+            break;
+    }
+    return true;
+}
+
+function resetBattleState() {
+    STATE = "";
+    cardId1 = "";
+    username2 = "";
+    cardId2 = "";
+}
+
+function openBattleCardPage() {
+    if (!battleCards.contains(document.getElementById("inputBattleCards"))) {
+        const inputBattleCards = document.createElement("input")
+        inputBattleCards.id = "inputBattleCards"
+        document.getElementById("battleCards").appendChild(inputBattleCards)
+        const buttonBattleCards = document.createElement("button")
+        document.getElementById("battleCards").appendChild(buttonBattleCards)
+        buttonBattleCards.style.height = "20px"
+        buttonBattleCards.style.width = "18px"
+        buttonBattleCards.id = "buttonBattleCards"
+        buttonBattleCards.innerHTML = "+" // Add text to the button
+
+        battleCards.removeEventListener("click", openBattleCardPage)
+        buttonBattleCards.addEventListener("click",openBattleCardPage)}
+
+        if (STATE == "") {
+            STATE = "player1 card"
+            inputBattleCards.value = ""
+            inputBattleCards.placeholder = "Enter your card ID"
+        }
+
+        else if (STATE == "player1 card") {
+            if (!submitBattleButtonCard(inputBattleCards.value)) return;
+            inputBattleCards.value = ""
+            STATE = "player2 name"
+            inputBattleCards.placeholder = "Enter opponent's username"
+        }
+
+        else if (STATE == "player2 name") {
+            if (!submitBattleButtonCard(inputBattleCards.value)) return;
+            STATE = "player2 card"
+            inputBattleCards.value = ""
+            inputBattleCards.placeholder = "Enter opponent's card ID"
+        }
+        else if (STATE == "player2 card") {
+            if (!submitBattleButtonCard(inputBattleCards.value)) return;
+            inputBattleCards.value = ""
+            battleCards.removeChild(inputBattleCards)
+            battleCards.removeChild(buttonBattleCards)
+            battleCards.addEventListener("click",openBattleCardPage)
+            battleCards.removeEventListener("click",openBattleCardPage)
+            
+            fetch(`http://localhost:8000/battleCard/?userName1=${encodeURIComponent(username)}&userName2=${encodeURIComponent(username2)}&cardId1=${encodeURIComponent(cardId1)}&cardId2=${encodeURIComponent(cardId2)}`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Battle result:', data);
+                // Display battle result to user
+                const resultDiv = document.createElement('div');
+                resultDiv.innerHTML = `Battle Result: ${data.message}`;
+                battleCards.appendChild(resultDiv);
+                // Clean up after 3 seconds
+                setTimeout(() => {
+                    battleCards.removeChild(resultDiv);
+                }, 3000);
+            })
+            .catch(error => {
+                console.error('Error in battle:', error);
+                const errorDiv = document.createElement('div');
+                errorDiv.innerHTML = `Error: ${error.message}`;
+                errorDiv.style.color = 'red';
+                battleCards.appendChild(errorDiv);
+                // Clean up error message after 3 seconds
+                setTimeout(() => {
+                    battleCards.removeChild(errorDiv);
+                }, 3000);
+            })
+            .finally(() => {
+                resetBattleState(); // Reset all state variables
+            });
+        }
+    }
