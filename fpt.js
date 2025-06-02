@@ -34,7 +34,7 @@ const submitButtonWrapper = document.getElementById('submitButtons')
 //chess Game properties
 const chessGameWeb = document.getElementById("chessGameWebsite")
 const addCard = document.getElementById("addCard")
-const getAllUsersCards = document.getElementById("getAllUsersCards")
+const allUsersCards = document.getElementById("getAllUsersCards")
 const removeCard = document.getElementById("removeCard")
 const battleCards = document.getElementById("battleCards") 
 
@@ -324,11 +324,38 @@ function getAllUserMusic() {
     console.log('Music List:', musicList);
 }
 
-function openChessGamePage(){
+function openChessGamePage(event){
 
     event.preventDefault();
 
     body.appendChild(chessGameWeb)
     body.removeChild(musicWebsite)
 
+    getAllUsersCards()
 }
+
+function getAllUsersCards(){
+    fetch(`http://localhost:8000/getAllUserCards/?userName=${encodeURIComponent(username)}`)
+        .then(response => response.json())
+        .then(data => {
+            // Assuming the response is a JSON object with a 'music' property
+            const cards = data[0].card || []; // Use an empty array if 'music' is not present
+            // Clear previous music list
+            allUsersCards.innerHTML = 'Your Cards List:';
+
+            // Populate the music list
+            cards.forEach(card => {
+                const cardItem = document.createElement('li');
+                cardItem.innerHTML = "Card Name: "+ card.cardName + "<br>" +"Card Id: " + card.cardId + "<br>" + "Power: " + card.power
+                allUsersCards.appendChild(cardItem);
+            });
+        })
+        .catch(error => console.error('Fetch error:', error));
+    console.log('Cards list:', cards);
+}
+
+function openAddCardPage (){
+    
+}
+
+fetch(`http://localhost:8000/addCard/?userName=${encodeURI(username)}&?musicId=${encodeURI()}`)
