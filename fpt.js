@@ -331,6 +331,7 @@ function openChessGamePage(event) {
     body.appendChild(chessGameWeb)
     body.removeChild(musicWebsite)
     addCard.addEventListener("click", openAddCardPage)
+    removeCard.addEventListener("click",openRemoveCardPage)
 
     getAllUsersCards()
 }
@@ -370,9 +371,25 @@ function openAddCardPage() {
     }
 }
 
+function openRemoveCardPage() {
+    if (!removeCard.contains(document.getElementById("inputRemoveCard"))) {
+        const inputRemoveCard = document.createElement("input")
+        inputRemoveCard.id = "inputRemoveCard"
+        document.getElementById("removeCard").appendChild(inputRemoveCard)
+        const buttonRemoveCard = document.createElement("button")
+        document.getElementById("removeCard").appendChild(buttonRemoveCard)
+        buttonRemoveCard.style.height = "20px"
+        buttonRemoveCard.style.width = "18px"
+        buttonRemoveCard.id = "buttonRemoveCard"
+        buttonRemoveCard.innerHTML = "+" // Add text to the button
+        buttonRemoveCard.addEventListener("click", submitRemoveCard)
+        removeCard.removeEventListener("click", openRemoveCardPage)
+    }
+}
+
 function submitAddCard() {
     const cardId = document.getElementById("inputAddCard").value
-    
+
     fetch(`http://localhost:8000/addCard/?userName=${encodeURIComponent(username)}&musicId=${encodeURIComponent(cardId)}`, {
         method: "POST"
     })
@@ -396,5 +413,34 @@ function submitAddCard() {
             if (inputElement) addCard.removeChild(inputElement);
             if (buttonElement) addCard.removeChild(buttonElement);
             addCard.addEventListener("click", openAddCardPage);
+        });
+}
+
+function submitRemoveCard() {
+    const cardId = document.getElementById("inputRemoveCard").value
+
+    fetch(`http://localhost:8000/removeCard/?userName=${encodeURIComponent(username)}&cardId=${encodeURIComponent(cardId)}`, {
+        method: "GET"
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Card removed successfully:', data);
+            getAllUsersCards(); // Refresh the cards list
+        })
+        .catch(error => {
+            console.error('Error removing card:', error);
+        })
+        .finally(() => {
+            // Clean up elements regardless of success/failure
+            const inputElement = document.getElementById("inputRemoveCard");
+            const buttonElement = document.getElementById("buttonRemoveCard");
+            if (inputElement) removeCard.removeChild(inputElement);
+            if (buttonElement) removeCard.removeChild(buttonElement);
+            removeCard.addEventListener("click", openRemoveCardPage);
         });
 }

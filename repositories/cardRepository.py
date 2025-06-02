@@ -35,7 +35,7 @@ class cardRepository:
         likeCount = int(response["items"][0]["statistics"]["likeCount"])
         # Special power comes from comment count - more engagement = more power
         commentCount = int(response["items"][0]["statistics"]["commentCount"] or 0)
-        Power = viewCount/likeCount + commentCount  # Power = views per like + comments
+        Power = round(viewCount/likeCount + commentCount,3)  # Power = views per like + comments
         cardName = response["items"][0]["snippet"]["title"]
 
         # Create new card document with calculated stats
