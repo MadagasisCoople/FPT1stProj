@@ -21,8 +21,7 @@ class cardRepository:
         """
 
         # Setup YouTube API and fetch video information
-        youtube = build("youtube", "v3",
-                        developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
+        youtube = build("youtube", "v3", developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
         request = youtube.videos().list(
             id=musicId,
             part="snippet,statistics"
