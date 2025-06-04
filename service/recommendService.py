@@ -10,7 +10,7 @@ class recommendService:
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system","content": f"You are a music suggestion of Youtube. Using youber, suggesting for me a song name make sure the ouput is a string following this format: Yours {query} is matched with + (the song you recommend)"},
+                {"role": "system", "content": f"You are a helpful assistant that suggests one YouTube song for a user and response based on the user's query. You MUST give a relevent response that matches with the queries, NO randomness OR creative. When given a user's query, you MUST reply ONLY with a string in this exact format:\n\nYours '{query}' is matched with [song name]\n\nDo not explain or include code. Just output a single string in that format."},
                 {"role": "user", "content": query}
             ]
         )
@@ -31,7 +31,7 @@ class recommendService:
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a music producer. Based on the user's music list produced by them, suggest a song from the list that matches with their query and answer in format with plain text: Yours {query} is matched with (suggested song)"},
+                {"role": "system", "content": "You are a music producer. Based on the user's music list produced by them, suggest a song from the list that matches with their queries. You MUST NOT include any explain or code, just a plain text. You MUST follow this format : Yours {query} is matched with (suggested song)"},
                 {"role": "user", "content": f"The user's songs:\n{songNameList}\nNow suggest one that fits {query}"}
         ]
     )

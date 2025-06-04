@@ -239,20 +239,20 @@ async function openWelcomePage() {
     signUpButton.innerHTML = "Wanna have some games?"
     signUpButton.addEventListener("click", openChessGamePage)
 
-    if(!musicWebsite.contains(document.getElementById("aiWebButton"))){
-    aiWebButtonWrapper = await document.createElement("div")
-    aiWebButton = document.createElement("button")
-    aiWebButton.type = "button"
-    aiWebButton.id = "aiWebButton"
-    aiWebButton.innerHTML = "Wanna have some AI helps?"
-    aiWebButtonWrapper.className = "button"
-    aiWebButtonWrapper.appendChild(aiWebButton)
-    form.appendChild(aiWebButtonWrapper)
-    aiWebButton.addEventListener("click", openAiPage)
+    if (!musicWebsite.contains(document.getElementById("aiWebButton"))) {
+        aiWebButtonWrapper = await document.createElement("div")
+        aiWebButton = document.createElement("button")
+        aiWebButton.type = "button"
+        aiWebButton.id = "aiWebButton"
+        aiWebButton.innerHTML = "Wanna have some AI helps?"
+        aiWebButtonWrapper.className = "button"
+        aiWebButtonWrapper.appendChild(aiWebButton)
+        form.appendChild(aiWebButtonWrapper)
+        aiWebButton.addEventListener("click", openAiPage)
     }
 
     document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!";
-    if(form.contains(inputUserNameWrapper))form.removeChild(inputUserNameWrapper)
+    if (form.contains(inputUserNameWrapper)) form.removeChild(inputUserNameWrapper)
 }
 
 // function to open the add music route page
@@ -367,11 +367,11 @@ function openChessGamePage(event) {
 
     event.preventDefault()
 
-    addReturnWelcomePageButton()
-
     if (!body.contains(chessGameWeb)) body.appendChild(chessGameWeb)
     if (body.contains(musicWebsite)) body.removeChild(musicWebsite)
     if (body.contains(aiWeb)) body.remmoveChild(aiWeb)
+
+    addReturnWelcomePageButton()
 
     resetFormValue()
 
@@ -606,17 +606,21 @@ function openBattleCardPage() {
 }
 
 async function addReturnWelcomePageButton() {
-    const returnButton = await document.createElement("button")
-    const returnButtonWrapper = document.createElement("div")
 
-    returnButton.id = "returnButton"
-    returnButtonWrapper.className = "input"
-    returnButtonWrapper.id = "returnButtonWrapper"
+    if (!document.getElementsByClassName("backGround")[0].contains(document.getElementById("returnButtonWrapper"))) {
+        const returnButton = await document.createElement("button")
+        const returnButtonWrapper = document.createElement("div")
 
-    returnButtonWrapper.appendChild(returnButton)
-    returnButton.addEventListener("click", returnToWelcomePage)
+        returnButton.id = "returnButton"
+        returnButton.innerHTML = "Back to the Welcome town"
+        returnButtonWrapper.className = "input"
+        returnButtonWrapper.id = "returnButtonWrapper"
 
-    document.getElementsByClassName("backGround")[0].appendChild(returnButtonWrapper)
+        returnButtonWrapper.appendChild(returnButton)
+        returnButton.addEventListener("click", returnToWelcomePage)
+
+        document.getElementsByClassName("backGround")[0].appendChild(returnButtonWrapper)
+    }
 }
 
 function returnToWelcomePage() {
@@ -627,32 +631,78 @@ function returnToWelcomePage() {
 
 function openAiPage() {
 
-    addReturnWelcomePageButton()
-
     if (!body.contains(aiWeb)) body.appendChild(aiWeb)
     if (body.contains(chessGameWeb)) body.removeChild(chessGameWeb)
     if (body.contains(musicWebsite)) body.removeChild(musicWebsite)
 
+    addReturnWelcomePageButton()
+    
     recommendMusic.addEventListener("click", openRecommendMusicPage)
     pickMusic.addEventListener("click", openPickMusicPage)
+    
 }
 
 function openRecommendMusicPage() {
-    if(!recommendMusic.contains(document.getElementById("inputQuery"))){
-    const inputQuery = document.createElement("input")
-    inputQuery.id = "inputQuery"
-    recommendMusic.appendChild(inputQuery)
-    const buttonQuery = document.createElement("button")
-    recommendMusic.appendChild(buttonQuery)
-    buttonQuery.style.height = "20px"
-    buttonQuery.style.width = "18px"
-    buttonQuery.id = "buttonQuery"
-    buttonQuery.innerHTML = "+" // Add text to the button
-    buttonAddCard.addEventListener("click", submitQuery)
-    recommendMusic.removeEventListener("click", openRecommendMusicPage)
+    if (!recommendMusic.contains(document.getElementById("inputQuery"))) {
+        const inputQuery = document.createElement("input")
+        inputQuery.id = "inputQuery"
+        recommendMusic.appendChild(inputQuery)
+        const buttonQuery = document.createElement("button")
+        recommendMusic.appendChild(buttonQuery)
+        buttonQuery.style.height = "20px"
+        buttonQuery.style.width = "18px"
+        buttonQuery.id = "buttonQuery"
+        buttonQuery.innerHTML = "+" // Add text to the button
+        buttonQuery.addEventListener("click", (query)=>submitQueryRecommendMusic(inputQuery.value,query))
+        recommendMusic.removeEventListener("click", openRecommendMusicPage)
     }
 }
 
-function submitQuery(){
-
+function submitQueryRecommendMusic(query) {
+    fetch(`http://localhost:8000/aiSuggestMusic/?query=${encodeURIComponent(query)}`, {
+        method: "POST"
+    })
+        .then(response => {
+            console.log("runned")
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data)
+        })
 }
+
+function openPickMusicPage() {
+    if (!pickMusic.contains(document.getElementById("inputQuery"))) {
+        const inputQuery = document.createElement("input")
+        inputQuery.id = "inputQuery"
+        pickMusic.appendChild(inputQuery)
+        const buttonQuery = document.createElement("button")
+        pickMusic.appendChild(buttonQuery)
+        buttonQuery.style.height = "20px"
+        buttonQuery.style.width = "18px"
+        buttonQuery.id = "buttonQuery"
+        buttonQuery.innerHTML = "+" // Add text to the button
+        buttonQuery.addEventListener("click", (query)=>submitQueryPickMusic(inputQuery.value,query))
+        pickMusic.removeEventListener("click", openRecommendMusicPage)
+    }
+}
+
+function submitQueryPickMusic(query) {
+    fetch(`http://localhost:8000/aiPickMusic/?username=${encodeURIComponent(username)}&query=${encodeURIComponent(query)}`, {
+        method: "POST"
+    })
+        .then(response => {
+            console.log("runned")
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log(data)
+        })
+}
+
