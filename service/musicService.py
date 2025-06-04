@@ -28,6 +28,7 @@ class musicService:
     @staticmethod
     async def deleteMusic(username:str, userMusic:str, db):
         collection = db["users"]
-        user = await collection.find_one({"userName": username})
+        user = await collection.find_one({"userName": username,"userMusic.userMusic": {"$regex": userMusic, "$options": "i"}})
         if not user:
-            raise userNameNotFoundError()
+            raise userNameNotFoundError(detail="Unable to dig up that song/username")
+        

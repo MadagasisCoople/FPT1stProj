@@ -2,6 +2,46 @@ from typing import Any, Dict
 from typing_extensions import Annotated, Doc
 from fastapi import HTTPException
 print("Error module initialized")
+
+# Custom error class for application-specific errors
+class AppError(Exception):
+    def __init__(self, message: str, status_code: int = 400):
+        self.message = message
+        self.status_code = status_code
+        super().__init__(self.message)
+
+# Error handler for application errors
+def handle_app_error(error: AppError) -> HTTPException:
+    """
+    Converts AppError to FastAPI HTTPException
+    
+    Args:
+        error: The application error to handle
+        
+    Returns:
+        HTTPException: FastAPI compatible error response
+    """
+    return HTTPException(
+        status_code=error.status_code,
+        detail=error.message
+    )
+
+# Error handler for general exceptions
+def handle_general_error(error: Exception) -> HTTPException:
+    """
+    Handles unexpected exceptions by converting to HTTPException
+    
+    Args:
+        error: The unexpected exception to handle
+        
+    Returns:
+        HTTPException: FastAPI compatible error response
+    """
+    return HTTPException(
+        status_code=500,
+        detail=str(error)
+    )
+
 class userNameConflictError(HTTPException):
     def __init__(self, detail: str = "Already got that username."):
         super().__init__(status_code=409, detail=detail)

@@ -1,44 +1,50 @@
 # Card Repository Module
-# Handles all card-related database operations including:
-# - Creating cards from YouTube videos
-# - Managing user's card collection
-# - Card battle system
+# Handles all card game-related database operations including:
+# - Card collection management
+# - Card battles
+# - Card statistics
+
 from domain.Schema import cardNames, userNames, Musics
 from infrastructure.mongoDB import mongoDB
 from googleapiclient.discovery import build
 
+print("Card repository initialized")
 
 class cardRepository:
+    """
+    Repository class for handling card game-related database operations
+    """
 
     async def addCard(self, userName: str, musicId: str, db):
         """
-        Creates a new card from a YouTube video and adds it to user's collection
+        Adds a new card to user's collection
         
-        Card power calculation:
-        - Base power = views/likes ratio
-        - Special power = comment count
-        - Total power = Base power + Special power
+        Args:
+            userName: Username of the card owner
+            musicId: ID of the music associated with the card
+            db: Database connection instance
+            
+        Returns:
+            dict: Success status and card details
         """
-
-        # Setup YouTube API and fetch video information
+        # setup youtube and search song
         youtube = build("youtube", "v3",
                         developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
-        request = youtube.videos().list(
+        request = youtube.search().list()(
             id=musicId,
             part="snippet,statistics"
         )
 
         response = request.execute()
 
-        # Calculate card stats from video metrics
-        viewCount = int(response["items"][0]["statistics"]["viewCount"])
-        likeCount = int(response["items"][0]["statistics"]["likeCount"])
-        # Special power comes from comment count - more engagement = more power
-        commentCount = int(response["items"][0]["statistics"]["commentCount"] or 0)
-        Power = round(viewCount/likeCount + commentCount,3)  # Power = views per like + comments
+        # Data getting for card
+        viewCount = response["items"][0]["statistics"]["viewCount"]
+        likeCount = response["items"][0]["statistics"]["likeCount"]
+        # speical power adding to commentcount
+        commentCount = response["items"][0]["statisctics"]["commentCount"] or 0
+        Power = viewCount/likeCount + commentCount  # Power = average person/like
         cardName = response["items"][0]["snippet"]["title"]
-
-        # Create new card document with calculated stats
+        # creating new card
         newCard = {
             "cardId": musicId,
             "cardName": cardName,
@@ -46,14 +52,14 @@ class cardRepository:
             "specialPower": commentCount
         }
 
-        # Add card to user's collection in database
+        # Adding a new card
         collection = db["users"]
         await collection.update_one(
             {"userName": userName},
             {"$push": {"card": newCard}}
         )
 
-        # Return card details for frontend display
+        # return values
         return {
             "userName": userName,
             "cardName": cardName,
@@ -64,14 +70,22 @@ class cardRepository:
 
     async def removeCard(self, userName: str, cardId: str, db):
         """
-        Removes a specific card from user's collection
-        Uses MongoDB $pull operator to remove card matching the cardId
+        Removes a card from user's collection
+        
+        Args:
+            userName: Username of the card owner
+            cardId: ID of the card to remove
+            db: Database connection instance
+            
+        Returns:
+            dict: Success status and message
         """
         collection = db["users"]
 
         await collection.update_one(
             {"userName": userName},
-            {"$pull": {"card": {"cardId": cardId}}}
+            {"$pull": {"cardId": cardId
+                       }}
         )
 
         return{
@@ -81,70 +95,62 @@ class cardRepository:
     
     async def getAllUsersCards(self, userName:str, db):
         """
-        Retrieves all cards owned by a specific user
-        Returns only necessary card information:
-        - Card Name (YouTube video title)
-        - Card ID (YouTube video ID)
-        - Power Level (calculated from video stats)
+        Retrieves all cards in user's collection
+        
+        Args:
+            userName: Username to fetch cards for
+            db: Database connection instance
+            
+        Returns:
+            list: List of card documents
         """
         collection = db["users"]
 
-        cursor = collection.find(
-            {"userName": userName},
-            {"card.cardName": 1, "card.cardId": 1, "card.power": 1, "_id": 0}
-        )
-        
-        result = await cursor.to_list(length = 100)
+        cursor = collection.find({"userName":userName},{"cardName":1,"cardId":1})
+        result = await cursor.to_list(length = None)
         
         return result
     
-    async def battleCards(self, userName1:str, userName2:str, cardId1: str, cardId2: str, db):
+    async def BattleCards(self, userName1:str, userName2:str, cardId1: str, cardId2: str, db):
         """
-        Card Battle System
-        Compares power levels of two cards to determine winner
+        Handles a card battle between two users
         
-        Battle Logic:
-        1. Find power levels of both cards
-        2. Higher power level wins
-        3. Returns both power levels and winner message
+        Args:
+            userName1: Username of first player
+            userName2: Username of second player
+            cardId1: Card ID of first player
+            cardId2: Card ID of second player
+            db: Database connection instance
+            
+        Returns:
+            dict: Battle result and winner information
         """
         collection = db["users"]
 
-        # Get first player's card power
-        user1Card = await collection.find_one(
-            {
-                "userName": userName1,
-                "card.cardId": cardId1
+        user1CardPower = collection.find_one({
+            "userName":userName1,
+            "cardId":cardId1
             },
-            {"card.power": 1}
-        )
-
-        # Get second player's card power
-        user2Card = await collection.find_one(
-            {
-                "userName": userName2,
-                "card.cardId": cardId2
+            {"power":1}
+        )["power"]
+        
+        user2CardPower = collection.find_one({
+            "userName":userName1,
+            "cardId":cardId1
             },
-            {"card.power": 1}
-        )
+            {"power":1}
+        )["power"]
 
-        if not user1Card or not user2Card:
-            return {"message": "One or both cards not found!"}
-
-        user1CardPower = user1Card["card"][0]["power"]
-        user2CardPower = user2Card["card"][0]["power"]
-
-        # Determine winner based on power levels
         if user1CardPower > user2CardPower:
             return {
-                "user1CardPower": user1CardPower,
-                "user2CardPower": user2CardPower,
-                "message": "O ma de to! Player 1 won!"
+                "user1CardPower":user1CardPower,
+                "user2CardPower":user2CardPower,
+                "message":"O ma de to! Player 1 won!"
             }
                 
         if user1CardPower < user2CardPower:
             return {
-                "user1CardPower": user1CardPower,
-                "user2CardPower": user2CardPower,
-                "message": "O ma de to! Player 2 won!"
+                "user1CardPower":user1CardPower,
+                "user2CardPower":user2CardPower,
+                "message":"O ma de to! Player 2 won!"
             }
