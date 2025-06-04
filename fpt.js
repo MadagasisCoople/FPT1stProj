@@ -217,9 +217,13 @@ function openSignUpPage() {
 
 
 //function to open the welcome page
-function openWelcomePage() {
-     
+async function openWelcomePage() {
+
     resetFormValue()
+
+    if (!body.contains(musicWebsite)) body.appendChild(musicWebsite)
+    if (body.contains(chessGameWeb)) body.removeChild(chessGameWeb)
+    if (body.contains(aiWeb)) body.remmoveChild(aiWeb)
 
     getAllUserMusic()
     musicWebsite.prepend(musicContainer)
@@ -235,17 +239,20 @@ function openWelcomePage() {
     signUpButton.innerHTML = "Wanna have some games?"
     signUpButton.addEventListener("click", openChessGamePage)
 
-    aiWebButtonWrapper = document.createElement("div")
+    if(!musicWebsite.contains(document.getElementById("aiWebButton"))){
+    aiWebButtonWrapper = await document.createElement("div")
     aiWebButton = document.createElement("button")
+    aiWebButton.type = "button"
     aiWebButton.id = "aiWebButton"
     aiWebButton.innerHTML = "Wanna have some AI helps?"
     aiWebButtonWrapper.className = "button"
     aiWebButtonWrapper.appendChild(aiWebButton)
     form.appendChild(aiWebButtonWrapper)
-    aiWebButton.addEventListener("click",openAiPage)
+    aiWebButton.addEventListener("click", openAiPage)
+    }
 
     document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!";
-    form.removeChild(inputUserNameWrapper)
+    if(form.contains(inputUserNameWrapper))form.removeChild(inputUserNameWrapper)
 }
 
 // function to open the add music route page
@@ -256,7 +263,6 @@ function openAddMusicPage(event) {
     event.preventDefault(); // Stop normal form submission
 
     //Taking out the inputing box
-
     form.removeChild(signUpButtons)
     form.insertBefore(inputUserNameWrapper, submitButtonWrapper);
     submitButton.removeEventListener("click", openAddMusicPage);
@@ -316,10 +322,10 @@ function deleteMusic(event) {
 
 // Functions to reset the form
 
-function resetFormValue(){
-    
+function resetFormValue() {
+
     //Reset data
-    for(var i = 0; i < inputs.length; i++) inputs[i].value = ""
+    for (var i = 0; i < inputs.length; i++) inputs[i].value = ""
 
 }
 
@@ -359,12 +365,16 @@ function getAllUserMusic() {
 
 function openChessGamePage(event) {
 
-    event.preventDefault();
+    event.preventDefault()
+
+    addReturnWelcomePageButton()
+
+    if (!body.contains(chessGameWeb)) body.appendChild(chessGameWeb)
+    if (body.contains(musicWebsite)) body.removeChild(musicWebsite)
+    if (body.contains(aiWeb)) body.remmoveChild(aiWeb)
 
     resetFormValue()
 
-    body.appendChild(chessGameWeb)
-    body.removeChild(musicWebsite)
     addCard.addEventListener("click", openAddCardPage)
     removeCard.addEventListener("click", openRemoveCardPage)
     battleCards.addEventListener("click", openBattleCardPage)
@@ -413,7 +423,7 @@ function openAddCardPage() {
 function openRemoveCardPage() {
 
     resetFormValue()
-    
+
     if (!removeCard.contains(document.getElementById("inputRemoveCard"))) {
         const inputRemoveCard = document.createElement("input")
         inputRemoveCard.id = "inputRemoveCard"
@@ -492,15 +502,15 @@ function submitBattleButtonCard(value) {
         console.error("Please enter a valid value");
         return false;
     }
-    
-    switch(STATE){
-        case "player1 card": 
+
+    switch (STATE) {
+        case "player1 card":
             cardId1 = value;
             break;
-        case "player2 name": 
+        case "player2 name":
             username2 = value;
             break;
-        case "player2 card": 
+        case "player2 card":
             cardId2 = value;
             break;
     }
@@ -530,36 +540,37 @@ function openBattleCardPage() {
         buttonBattleCards.innerHTML = "+" // Add text to the button
 
         battleCards.removeEventListener("click", openBattleCardPage)
-        buttonBattleCards.addEventListener("click",openBattleCardPage)}
+        buttonBattleCards.addEventListener("click", openBattleCardPage)
+    }
 
-        if (STATE == "") {
-            STATE = "player1 card"
-            inputBattleCards.value = ""
-            inputBattleCards.placeholder = "Enter your card ID"
-        }
+    if (STATE == "") {
+        STATE = "player1 card"
+        inputBattleCards.value = ""
+        inputBattleCards.placeholder = "Enter your card ID"
+    }
 
-        else if (STATE == "player1 card") {
-            if (!submitBattleButtonCard(inputBattleCards.value)) return;
-            inputBattleCards.value = ""
-            STATE = "player2 name"
-            inputBattleCards.placeholder = "Enter opponent's username"
-        }
+    else if (STATE == "player1 card") {
+        if (!submitBattleButtonCard(inputBattleCards.value)) return;
+        inputBattleCards.value = ""
+        STATE = "player2 name"
+        inputBattleCards.placeholder = "Enter opponent's username"
+    }
 
-        else if (STATE == "player2 name") {
-            if (!submitBattleButtonCard(inputBattleCards.value)) return;
-            STATE = "player2 card"
-            inputBattleCards.value = ""
-            inputBattleCards.placeholder = "Enter opponent's card ID"
-        }
-        else if (STATE == "player2 card") {
-            if (!submitBattleButtonCard(inputBattleCards.value)) return;
-            inputBattleCards.value = ""
-            battleCards.removeChild(inputBattleCards)
-            battleCards.removeChild(buttonBattleCards)
-            battleCards.addEventListener("click",openBattleCardPage)
-            battleCards.removeEventListener("click",openBattleCardPage)
-            
-            fetch(`http://localhost:8000/battleCard/?userName1=${encodeURIComponent(username)}&userName2=${encodeURIComponent(username2)}&cardId1=${encodeURIComponent(cardId1)}&cardId2=${encodeURIComponent(cardId2)}`)
+    else if (STATE == "player2 name") {
+        if (!submitBattleButtonCard(inputBattleCards.value)) return;
+        STATE = "player2 card"
+        inputBattleCards.value = ""
+        inputBattleCards.placeholder = "Enter opponent's card ID"
+    }
+    else if (STATE == "player2 card") {
+        if (!submitBattleButtonCard(inputBattleCards.value)) return;
+        inputBattleCards.value = ""
+        battleCards.removeChild(inputBattleCards)
+        battleCards.removeChild(buttonBattleCards)
+        battleCards.addEventListener("click", openBattleCardPage)
+        battleCards.removeEventListener("click", openBattleCardPage)
+
+        fetch(`http://localhost:8000/battleCard/?userName1=${encodeURIComponent(username)}&userName2=${encodeURIComponent(username2)}&cardId1=${encodeURIComponent(cardId1)}&cardId2=${encodeURIComponent(cardId2)}`)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -591,10 +602,57 @@ function openBattleCardPage() {
             .finally(() => {
                 resetBattleState(); // Reset all state variables
             });
-        }
     }
+}
 
-    function openAiPage(){
-        body.removeChild(musicWebsite)
-        body.appendChild(aiWeb)
+async function addReturnWelcomePageButton() {
+    const returnButton = await document.createElement("button")
+    const returnButtonWrapper = document.createElement("div")
+
+    returnButton.id = "returnButton"
+    returnButtonWrapper.className = "input"
+    returnButtonWrapper.id = "returnButtonWrapper"
+
+    returnButtonWrapper.appendChild(returnButton)
+    returnButton.addEventListener("click", returnToWelcomePage)
+
+    document.getElementsByClassName("backGround")[0].appendChild(returnButtonWrapper)
+}
+
+function returnToWelcomePage() {
+    if (body.contains(aiWeb)) body.removeChild(aiWeb)
+    if (body.contains(chessGameWeb)) body.removeChild(chessGameWeb)
+    openWelcomePage()
+}
+
+function openAiPage() {
+
+    addReturnWelcomePageButton()
+
+    if (!body.contains(aiWeb)) body.appendChild(aiWeb)
+    if (body.contains(chessGameWeb)) body.removeChild(chessGameWeb)
+    if (body.contains(musicWebsite)) body.removeChild(musicWebsite)
+
+    recommendMusic.addEventListener("click", openRecommendMusicPage)
+    pickMusic.addEventListener("click", openPickMusicPage)
+}
+
+function openRecommendMusicPage() {
+    if(!recommendMusic.contains(document.getElementById("inputQuery"))){
+    const inputQuery = document.createElement("input")
+    inputQuery.id = "inputQuery"
+    recommendMusic.appendChild(inputQuery)
+    const buttonQuery = document.createElement("button")
+    recommendMusic.appendChild(buttonQuery)
+    buttonQuery.style.height = "20px"
+    buttonQuery.style.width = "18px"
+    buttonQuery.id = "buttonQuery"
+    buttonQuery.innerHTML = "+" // Add text to the button
+    buttonAddCard.addEventListener("click", submitQuery)
+    recommendMusic.removeEventListener("click", openRecommendMusicPage)
     }
+}
+
+function submitQuery(){
+
+}
