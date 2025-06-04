@@ -24,9 +24,6 @@ const inputPassWord = document.getElementById('inputPassWord')
 //Sign up buttoms and its wrapper
 const signUpButtonWrapper = document.getElementById('signUpButtons')
 const signUpButton = document.getElementById('signUpButton')
-//delete button and its wrapper
-const deleteButton = document.getElementById('deleteButton')
-const deleteButtonWrapper = document.getElementById('deleteButtons')
 //submit button and its wrapper
 const submitButton = document.getElementById("submitButton")
 const submitButtonWrapper = document.getElementById('submitButtons')
@@ -43,13 +40,19 @@ const aiWeb = document.getElementById("aiWebsite")
 const recommendMusic = document.getElementById("recommendMusic")
 const pickMusic = document.getElementById("pickMusic")
 
+//add/delete music Website properties
+const musicAddDeleteWeb = document.getElementById("musicAddDeleteWebsite")
+const musicInput = document.getElementById("musicInput")
+const addButton = document.getElementById("addButton")
+const deleteButton = document.getElementById("deleteButton")
+
 // temporary remove the part that are unecessary "yet from the body
-form.removeChild(deleteButtonWrapper)
 musicWebsite.removeChild(form)
 musicWebsite.removeChild(musicContainer)
 form.removeChild(signUpButtonWrapper)
 body.removeChild(chessGameWeb)
 body.removeChild(aiWeb)
+body.removeChild(musicAddDeleteWeb)
 
 // adding event listener to the form for first run
 form.addEventListener("submit", submitLogin)
@@ -63,7 +66,7 @@ var musicList = [] // Stores the user's music collection
 var numberOfUsers = 0 // Tracks total number of registered users
 var username = "" // Current user's username
 var password = "" // Current user's password
-var musicInput = "" // Temporary storage for music input
+var music = "" // Temporary storage for music input
 const APIURL = `http://localhost:8000` // Base URL for the API
 var STATE = "" // Current application state
 var cardId1 = "" // First card ID for battle system
@@ -124,11 +127,13 @@ function submitLogin(event) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                form.removeEventListener("submit",submitLogin)
                 console.log('Login successful:', data);
                 //open the welcome page
                 openWelcomePage();
                 submitButton.removeEventListener("click", submitLogin)
                 signUpButtonWrapper.removeEventListener("click", openSignUpPage)
+                submitButton.type = "button"
             } else {
                 console.error('Login failed:', data.message || data.message || data);
             }
@@ -161,10 +166,12 @@ function submitSignup(event) {
         .then(response => response.json())
         .then(data => {
             if (data.success) {
+                form.removeEventListener("submit",submitSignup)
                 console.log('User added:', data)
                 openWelcomePage();
                 submitButton.removeEventListener("click", submitSignup)
                 signUpButtonWrapper.removeEventListener("click", openLoginPage)
+                submitButton.type = "button"
             }
         })
         .catch(error => console.error('Error:', error));
@@ -220,13 +227,13 @@ function openSignUpPage() {
 async function openWelcomePage() {
 
     resetFormValue()
+    getAllUserMusic()
+    await musicWebsite.prepend(musicContainer)
 
+    if (body.contains(musicAddDeleteWeb)) body.removeChild(musicAddDeleteWeb)
     if (!body.contains(musicWebsite)) body.appendChild(musicWebsite)
     if (body.contains(chessGameWeb)) body.removeChild(chessGameWeb)
-    if (body.contains(aiWeb)) body.remmoveChild(aiWeb)
-
-    getAllUserMusic()
-    musicWebsite.prepend(musicContainer)
+    if (body.contains(aiWeb)) body.removeChild(aiWeb)
 
     //tke time till we need it again so but here to avoid error when we need to open Welcome page again
     if (form.contains(labelInputPassWord)) form.removeChild(labelInputPassWord)
@@ -258,68 +265,57 @@ async function openWelcomePage() {
 }
 
 // Function to display the music addition page
-function openAddMusicPage(event) {
+function openAddMusicPage() {
 
-    resetFormValue()
+    if (body.contains(musicWebsite)) body.removeChild(musicWebsite)
+    if (body.contains(chessGameWeb)) body.removeChild(chessGameWeb)
+    if (body.contains(aiWeb)) body.removeChild(aiWeb)
+    if (!body.contains(musicAddDeleteWeb)) body.appendChild(musicAddDeleteWeb)
 
-    event.preventDefault(); // Stop normal form submission
+    addReturnWelcomePageButton()
 
-    //Taking out the inputing box
-    form.removeChild(aiWebButtonWrapper)
-    form.removeChild(signUpButtons)
-    form.insertBefore(inputUserNameWrapper, submitButtonWrapper);
-    submitButton.removeEventListener("click", openAddMusicPage);
+    addButton.addEventListener("click",addMusic)
+    deleteButton.addEventListener("click",deleteMusic)
 
-    // Add button 
-    submitButton.addEventListener("click", addMusic);
-    submitButton.innerHTML = "Add Music!";
-    document.getElementsByClassName("userNames")[0].innerHTML = "Please input the music you want to add/delete!";
-
-    // Delete button
-    form.appendChild(deleteButtonWrapper);
-    deleteButton.addEventListener("click", deleteMusic);
 }
 
 // Function to add new music to user's collection
-async function addMusic(event) {
-    event.preventDefault(); // Stop normal form submission
+async function addMusic() {
+
     // Get the input value and modify it
-    musicInput = inputUserName.value;
+    music = musicInput.value;
 
     // Create the URL with values from the input fields
-    let url = `http://localhost:8000/addMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(musicInput)}`;
+    let url = `http://localhost:8000/addMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(music)}`;
 
     // send a POST request to the Python backend
     await fetch(url, {
         method: 'POST'
     })
-        .then(response => response.json())
+        .then(
+            getAllUserMusic(),
+            response => response.json())
         .then(data => {
             console.log('Music added:', data);
-            return getAllUserMusic(); // Return the promise from getAllUserMusic
-        })
-        .then(() => {
-            resetForm(); // Only reset form after getAllUserMusic completes
+             // Return the promise from getAllUserMusic
         })
         .catch(error => console.error('Error:', error));
 }
 
 // Function to remove music from user's collection
-function deleteMusic(event) {
-    event.preventDefault(); // Stop normal form submission
+function deleteMusic() {
 
-    musicInput = inputUserName.value;
-    fetch(`http://localhost:8000/deleteMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(musicInput)}`, {
+    
+    fetch(`http://localhost:8000/deleteMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(music)}`, {
         method: 'DELETE'
     })
-        .then(response => response.json())
+        .then(response => 
+            getAllUserMusic(),
+            response.json())
         .then(data => {
             console.log('Music deleted:', data);
-            return getAllUserMusic(); // Return the promise from getAllUserMusic
         })
-        .then(() => {
-            resetForm(); // Only reset form after getAllUserMusic completes
-        })
+        
         .catch(error => console.error('Error:', error));
 }
 
@@ -330,20 +326,6 @@ function resetFormValue() {
     for (var i = 0; i < inputs.length; i++) inputs[i].value = ""
 
 }
-
-// Function to reset the entire form state
-function resetForm() {
-
-    // Reset the form and buttons
-    if(form.contains(inputUserNameWrapper)) form.removeChild(inputUserNameWrapper);
-    submitButton.innerHTML = "You want to add more music?";
-    submitButton.removeEventListener("click", addMusic);
-    document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!"
-    submitButton.addEventListener("click", openAddMusicPage);
-    if(form.contains(deleteButtonWrapper)) form.removeChild(deleteButtonWrapper);
-    if (!(form.contains(signUpButtonWrapper))) form.append(signUpButtonWrapper)
-    if(!form.contains(aiWebButtonWrapper)) form.append(aiWebButtonWrapper)
-    }
 
 // Function to fetch and display all user's music
 function getAllUserMusic() {
@@ -373,7 +355,7 @@ function openChessGamePage(event) {
 
     if (!body.contains(chessGameWeb)) body.appendChild(chessGameWeb)
     if (body.contains(musicWebsite)) body.removeChild(musicWebsite)
-    if (body.contains(aiWeb)) body.remmoveChild(aiWeb)
+    if (body.contains(aiWeb)) body.removeChild(aiWeb)
 
     addReturnWelcomePageButton()
 
@@ -638,15 +620,13 @@ async function addReturnWelcomePageButton() {
 
 // Function to return to the welcome page
 function returnToWelcomePage() {
-    if (body.contains(aiWeb)) body.removeChild(aiWeb)
-    if (body.contains(chessGameWeb)) body.removeChild(chessGameWeb)
     openWelcomePage()
-    resetForm()
 }
 
 // Function to open the AI features page
 function openAiPage() {
 
+     if (body.contains(musicAddDeleteWeb)) body.removeChild(musicAddDeleteWeb)
     if (!body.contains(aiWeb)) body.appendChild(aiWeb)
     if (body.contains(chessGameWeb)) body.removeChild(chessGameWeb)
     if (body.contains(musicWebsite)) body.removeChild(musicWebsite)
