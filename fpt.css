@@ -1,56 +1,56 @@
-/* Main headline styling with large font size */
+/* Main headline styling with large font size for the welcome message */
 #headLine{
     font-size: 520%;
 }
 
-/* Form container styling for user authentication */
+/* Form container styling for user authentication with full width and half height */
 #formLinkPython{
     height: 50%;
     width : 100%;
 }
 
-/* Question label styling with large font and left padding */
+/* Question label styling for form inputs with large font and left padding for alignment */
 .question{
    font-size: 150%;
    padding-left: 40%;
    padding-bottom: 30%;
 }
 
-/* Input container styling with large font and left padding */
+/* Input container styling for form fields with large font and left padding for alignment */
 .input{
    font-size: 150%;
    padding-left: 40%;
 }
 
-/* Individual input field width */
+/* Individual input field width for consistent form field sizes */
 input{
     width: 35%;
 }
 
-/* Button container positioning */
+/* Button container positioning with top and left padding for alignment */
 .button{
     padding-top: 5%;
     padding-left: 45%;
 }
 
-/* Individual button styling */
+/* Individual button styling with fixed width and height for consistent button sizes */
 button{
     width: 20%;
     height: 80px;
 }
 
-/* Full viewport height setup for HTML and body */
+/* Full viewport height setup for HTML and body to ensure full page coverage */
 html, body {
     height: 100%;
     margin: 0;
 }
 
-/* Background container minimum height */
+/* Background container minimum height to ensure full page coverage */
 .backGround{
     min-height: 100%;
 }
 
-/* Card addition section background color */
+/* Card addition section background color for visual distinction */
 #addCard{
     background-color: gray;
 }

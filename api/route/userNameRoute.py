@@ -31,10 +31,25 @@ async def add_user(username: str, password: str, db = Depends(getMongoDB)):
 
 @router.delete("/deleteAllUsers")
 async def deleteAllUsers(db = Depends(getMongoDB)):
+    """
+    Delete all users from the database
+    
+    Returns:
+        dict: Success status and count of deleted users
+    """
     return await userRepositorys.deleteAllUsers(db)
 
 @router.delete("/deleteUser")
 async def deleteUser(username: str, db = Depends(getMongoDB)):
+    """
+    Delete a specific user by username
+    
+    Args:
+        username: Username of the user to delete
+        
+    Returns:
+        dict: Success status and deleted user details
+    """
     await userServices.deleteUser(username, db)
     return await userRepositorys.deleteUser(username, db)
 

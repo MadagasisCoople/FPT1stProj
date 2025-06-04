@@ -1,12 +1,27 @@
+# Music Recommendation Service Module
+# Provides AI-powered music suggestions and picks based on user queries
 import openai
 import json
 
 
 class recommendService:
+    """
+    Service class for handling music recommendations using OpenAI's GPT model
+    Provides functionality for suggesting new music and picking from user's collection
+    """
 
     openai.api_key = "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"
 
     async def aiSuggestMusic(self, query: str):
+        """
+        Get AI-generated music suggestion based on user query
+        
+        Args:
+            query: User's music preference or request
+            
+        Returns:
+            str: Formatted string with suggested song
+        """
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
@@ -20,6 +35,17 @@ class recommendService:
         return contentRaw
 
     async def aiPickMusic(self, username: str, query: str, db):
+        """
+        Get AI-generated music pick from user's collection based on query
+        
+        Args:
+            username: Username to fetch music from
+            query: User's music preference or request
+            db: Database connection instance
+            
+        Returns:
+            str: Formatted string with picked song from user's collection
+        """
         collection = db["users"]
         
         userNames = await collection.find_one({"userName":username})
