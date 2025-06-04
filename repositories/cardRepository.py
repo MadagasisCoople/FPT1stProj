@@ -106,9 +106,17 @@ class cardRepository:
         """
         collection = db["users"]
 
-        cursor = collection.find({"userName":userName},{"cardName":1,"cardId":1})
-        result = await cursor.to_list(length = None)
+        # Find user and project only card collection, excluding _id
+        cursor = collection.find(
+            {"userName": userName},
+            {"card": 1, "_id": 0}
+        )
+        result = await cursor.to_list(length=None)
         
+        # Return empty list if no cards found
+        if not result or not result[0].get("card"):
+            return [{"card": []}]
+            
         return result
     
     async def BattleCards(self, userName1:str, userName2:str, cardId1: str, cardId2: str, db):

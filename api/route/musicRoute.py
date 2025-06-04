@@ -18,7 +18,7 @@ musicServices = musicService()
 recommendServices = recommendService()
 
 @router.post("/addMusic")
-async def addMusic(username: str, music: str, db = Depends(getMongoDB)):
+async def addMusic(username: str, userMusic: str, db = Depends(getMongoDB)):
     """
     Add a new music to user's collection
     
@@ -29,8 +29,8 @@ async def addMusic(username: str, music: str, db = Depends(getMongoDB)):
     Returns:
         dict: Success status and music details
     """
-    await musicServices.addMusic(username, music, db)
-    return await musicRepositorys.addMusic(username, music, db)
+    await musicServices.addMusic(username, userMusic, db)
+    return await musicRepositorys.addMusic(username, userMusic, db)
 
 @router.get("/getAllUserMusic")
 async def getAllUserMusic(username: str, db = Depends(getMongoDB)):
@@ -47,7 +47,7 @@ async def getAllUserMusic(username: str, db = Depends(getMongoDB)):
     return await musicRepositorys.getAllUserMusic(username, db)
 
 @router.delete("/deleteMusic")
-async def deleteMusic(username: str, music: str, db = Depends(getMongoDB)):
+async def deleteMusic(username: str, userMusic: str, db = Depends(getMongoDB)):
     """
     Remove a music from user's collection
     
@@ -58,14 +58,34 @@ async def deleteMusic(username: str, music: str, db = Depends(getMongoDB)):
     Returns:
         dict: Success status and message
     """
-    await musicServices.deleteMusic(username, music, db)
-    return await musicRepositorys.deleteMusic(username, music, db)
+    await musicServices.deleteMusic(username, userMusic, db)
+    return await musicRepositorys.deleteMusic(username, userMusic, db)
 
 @router.post("/aiSuggestMusic")
 async def aiSuggestMusic(query: str):
+    """
+    Get AI-generated music suggestions based on a query
+    
+    Args:
+        query: Search query for music suggestions
+        
+    Returns:
+        list: List of suggested music items
+    """
     return await recommendServices.aiSuggestMusic(query)
 
 @router.post("/aiPickMusic")
 async def aiPickMusic(username: str, query: str, db = Depends(getMongoDB)):
+    """
+    Get AI-generated music pick from user's collection based on a query
+    
+    Args:
+        username: Username to fetch music from
+        query: Search query for music selection
+        db: Database connection instance
+        
+    Returns:
+        dict: Selected music details
+    """
     await musicServices.getAllUserMusic(username,db)
     return await recommendServices.aiPickMusic(username,query,db)
