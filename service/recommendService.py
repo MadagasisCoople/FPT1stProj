@@ -31,8 +31,8 @@ class recommendService:
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a music producer. Based on the user's music list produced by them, suggest a song from the list that matches with their query and answer in format: Yours {query} is matched with (suggested song)"},
+                {"role": "system", "content": "You are a music producer. Based on the user's music list produced by them, suggest a song from the list that matches with their query and answer in format with plain text: Yours {query} is matched with (suggested song)"},
                 {"role": "user", "content": f"The user's songs:\n{songNameList}\nNow suggest one that fits {query}"}
         ]
     )
-        return response
+        return response.choices[0].message.content

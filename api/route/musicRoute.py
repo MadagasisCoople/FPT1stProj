@@ -29,6 +29,8 @@ async def deleteMusic(username: str, userMusic: str, db = Depends(getMongoDB)):
 @router.post("/aiSuggestMusic")
 async def aiSuggestMusic(query: str):
     return await recommendServices.aiSuggestMusic(query)
+
 @router.post("/aiPickMusic")
 async def aiPickMusic(username: str, query: str, db = Depends(getMongoDB)):
+    await musicServices.getAllUserMusic(username,db)
     return await recommendServices.aiPickMusic(username,query,db)
