@@ -22,16 +22,16 @@ class recommendService:
     async def aiPickMusic(self, username: str, query: str, db):
         collection = db["users"]
         
-        userNames = collection.find_one({"userName":username})
+        userNames = await collection.find_one({"userName":username})
 
-        musicNameList = [songName["userMusic"] for songName in userNames["userMusic"] if "musicName" in songName]
+        musicNameList = [songName["userMusic"] for songName in userNames["userMusic"] if "userMusic" in songName]
 
         songNameList = "\n".join(f"-{name}" for name in musicNameList)
 
         response = openai.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are a music producer. Based on the user's music history, suggest one matching song.Format: Yours {query} is matched with (suggested song)"},
+                {"role": "system", "content": "You are a music producer. Based on the user's music list produced by them, suggest a song from the list that matches with their query and answer in format: Yours {query} is matched with (suggested song)"},
                 {"role": "user", "content": f"The user's songs:\n{songNameList}\nNow suggest one that fits {query}"}
         ]
     )
