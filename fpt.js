@@ -38,12 +38,18 @@ const allUsersCards = document.getElementById("getAllUsersCards")
 const removeCard = document.getElementById("removeCard")
 const battleCards = document.getElementById("battleCards")
 
+//ai Website properties
+const aiWeb = document.getElementById("aiWebsite")
+const recommendMusic = document.getElementById("recommendMusic")
+const pickMusic = document.getElementById("pickMusic")
+
 // temporary remove the part that are unecessary "yet from the body
 form.removeChild(deleteButtonWrapper)
 musicWebsite.removeChild(form)
 musicWebsite.removeChild(musicContainer)
 form.removeChild(signUpButtonWrapper)
 body.removeChild(chessGameWeb)
+body.removeChild(aiWeb)
 
 // adding event listener to the form for first run
 form.addEventListener("submit", submitLogin)
@@ -167,6 +173,7 @@ function submitSignup(event) {
 
 //Function to open the login page
 function openLoginPage() {
+    resetFormValue()
 
     console.log("Open login page")
 
@@ -194,7 +201,7 @@ function openLoginPage() {
 //function to open the sign up ppage
 function openSignUpPage() {
 
-    console.log("open Signup page")
+    resetFormValue()
 
     //Form label setup
     document.getElementsByClassName("userNames")[0].innerHTML = "Time to sign up your username!"
@@ -211,6 +218,9 @@ function openSignUpPage() {
 
 //function to open the welcome page
 function openWelcomePage() {
+     
+    resetFormValue()
+
     getAllUserMusic()
     musicWebsite.prepend(musicContainer)
 
@@ -225,12 +235,23 @@ function openWelcomePage() {
     signUpButton.innerHTML = "Wanna have some games?"
     signUpButton.addEventListener("click", openChessGamePage)
 
+    aiWebButtonWrapper = document.createElement("div")
+    aiWebButton = document.createElement("button")
+    aiWebButton.id = "aiWebButton"
+    aiWebButton.innerHTML = "Wanna have some AI helps?"
+    aiWebButtonWrapper.className = "button"
+    aiWebButtonWrapper.appendChild(aiWebButton)
+    form.appendChild(aiWebButtonWrapper)
+    aiWebButton.addEventListener("click",openAiPage)
+
     document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!";
     form.removeChild(inputUserNameWrapper)
 }
 
 // function to open the add music route page
 function openAddMusicPage(event) {
+
+    resetFormValue()
 
     event.preventDefault(); // Stop normal form submission
 
@@ -293,7 +314,15 @@ function deleteMusic(event) {
         .catch(error => console.error('Error:', error));
 }
 
-// Function to reset the form      
+// Functions to reset the form
+
+function resetFormValue(){
+    
+    //Reset data
+    for(var i = 0; i < inputs.length; i++) inputs[i].value = ""
+
+}
+
 function resetForm() {
 
     // Reset the form and buttons
@@ -332,6 +361,8 @@ function openChessGamePage(event) {
 
     event.preventDefault();
 
+    resetFormValue()
+
     body.appendChild(chessGameWeb)
     body.removeChild(musicWebsite)
     addCard.addEventListener("click", openAddCardPage)
@@ -361,6 +392,9 @@ function getAllUsersCards() {
 }
 
 function openAddCardPage() {
+
+    resetFormValue()
+
     if (!addCard.contains(document.getElementById("inputAddCard"))) {
         const inputAddCard = document.createElement("input")
         inputAddCard.id = "inputAddCard"
@@ -377,6 +411,9 @@ function openAddCardPage() {
 }
 
 function openRemoveCardPage() {
+
+    resetFormValue()
+    
     if (!removeCard.contains(document.getElementById("inputRemoveCard"))) {
         const inputRemoveCard = document.createElement("input")
         inputRemoveCard.id = "inputRemoveCard"
@@ -478,6 +515,9 @@ function resetBattleState() {
 }
 
 function openBattleCardPage() {
+
+    resetFormValue()
+
     if (!battleCards.contains(document.getElementById("inputBattleCards"))) {
         const inputBattleCards = document.createElement("input")
         inputBattleCards.id = "inputBattleCards"
@@ -535,7 +575,7 @@ function openBattleCardPage() {
                 // Clean up after 3 seconds
                 setTimeout(() => {
                     battleCards.removeChild(resultDiv);
-                }, 3000);
+                }, 6000);
             })
             .catch(error => {
                 console.error('Error in battle:', error);
@@ -546,10 +586,15 @@ function openBattleCardPage() {
                 // Clean up error message after 3 seconds
                 setTimeout(() => {
                     battleCards.removeChild(errorDiv);
-                }, 3000);
+                }, 5000);
             })
             .finally(() => {
                 resetBattleState(); // Reset all state variables
             });
         }
+    }
+
+    function openAiPage(){
+        body.removeChild(musicWebsite)
+        body.appendChild(aiWeb)
     }
