@@ -1,17 +1,17 @@
-//all lable
+// DOM Element References
+// Labels and form elements
 const labels = document.getElementsByTagName("label")
-//all inputs
 const inputs = document.getElementsByTagName("input")
-//all wrapper
 const buttonWrapper = document.getElementsByClassName('button')
-//form, body, headline and others HTML holder elements
+
+// Main container elements
 const musicWebsite = document.getElementById("musicWebsite")
 const form = document.getElementById("formLinkPython")
 const body = document.getElementById("mainBody")
 const headLine = document.getElementById("headLine")
-//music container
 const musicContainer = document.getElementById('musicContainer')
-//input and wrapper field for username and password
+
+// User authentication form elements
 const lableInputUserName = document.getElementsByClassName("userNames")[0]
 const labelInputPassWord = document.getElementsByClassName("passWords")[0]
 const inputUserNameWrapper = document.getElementsByClassName('input')[0]
@@ -19,31 +19,27 @@ const inputPassWordWrapper = document.getElementsByClassName('input')[1]
 const inputUserName = document.getElementById('inputUserName')
 const inputPassWord = document.getElementById('inputPassWord')
 
-//Buttons
-
-//Sign up buttoms and its wrapper
+// Button elements and their wrappers
 const signUpButtonWrapper = document.getElementById('signUpButtons')
 const signUpButton = document.getElementById('signUpButton')
-//delete button and its wrapper
 const deleteButton = document.getElementById('deleteButton')
 const deleteButtonWrapper = document.getElementById('deleteButtons')
-//submit button and its wrapper
 const submitButton = document.getElementById("submitButton")
 const submitButtonWrapper = document.getElementById('submitButtons')
 
-//chess Game properties
+// Card game related elements
 const chessGameWeb = document.getElementById("chessGameWebsite")
 const addCard = document.getElementById("addCard")
 const allUsersCards = document.getElementById("getAllUsersCards")
 const removeCard = document.getElementById("removeCard")
 const battleCards = document.getElementById("battleCards")
 
-//ai Website properties
+// AI recommendation related elements
 const aiWeb = document.getElementById("aiWebsite")
 const recommendMusic = document.getElementById("recommendMusic")
 const pickMusic = document.getElementById("pickMusic")
 
-// temporary remove the part that are unecessary "yet from the body
+// Initial page setup - removing unnecessary elements
 form.removeChild(deleteButtonWrapper)
 musicWebsite.removeChild(form)
 musicWebsite.removeChild(musicContainer)
@@ -51,36 +47,33 @@ form.removeChild(signUpButtonWrapper)
 body.removeChild(chessGameWeb)
 body.removeChild(aiWeb)
 
-// adding event listener to the form for first run
+// Event Listeners
 form.addEventListener("submit", submitLogin)
-
-//when loading the page, get how many users are there.
 window.addEventListener("load", loadingPageBasedOnUserCount);
 
-//variables
-var musicList = []
-var numberOfUsers = 0
-var username = ""
-var password = ""
-var musicInput = ""
-const APIURL = `http://localhost:8000` // Base URL for the API
-var STATE = ""
-var cardId1 = ""
-var username2 = ""
-var cardId2 = ""
+// Global variables
+var musicList = []          // Stores user's music list
+var numberOfUsers = 0       // Tracks total number of users
+var username = ""          // Current user's username
+var password = ""          // Current user's password
+var musicInput = ""        // Temporary storage for music input
+const APIURL = `http://localhost:8000`  // Base URL for API calls
+var STATE = ""            // Current application state
+var cardId1 = ""          // First card ID for battles
+var username2 = ""        // Second user's username for battles
+var cardId2 = ""          // Second card ID for battles
 
-//All the existing functions that are used in the HTML file
-
-// Function to handle the login page
+/**
+ * Initial page load handler
+ * Checks number of users and sets up appropriate page state
+ */
 function loadingPageBasedOnUserCount() {
     console.log("Loading page based on user count...");
 
-    //run numberOfUsers route
     fetch('http://localhost:8000/numberOfUsers')
         .then(response => response.json())
         .then(data => {
-            numberOfUsers = data.userCount || 0; // Get the user count from the response, default to 0 if not present
-            //unable to assign null to userCount therefore assign 0 to it
+            numberOfUsers = data.userCount || 0;
             if (data.userCount == null || data.userCount == 0) {
                 console.log('User count data received:')
                 data.userCount = 0;
@@ -90,74 +83,61 @@ function loadingPageBasedOnUserCount() {
                     musicWebsite.removeChild(headLine)
                 })
             }
-
             else if (data.userCount > 0) {
-                //if already got data, move to the login part.
                 musicWebsite.removeChild(headLine)
                 openLoginPage()
             }
         })
-        //in case there is an error
         .catch(error => console.error('Fetch error:', error));
 }
 
-//Login function that will be called when the form is submitted
-
+/**
+ * Handles user login form submission
+ * Validates credentials with backend and opens welcome page on success
+ */
 function submitLogin(event) {
-
-    // Get the input value and modify it
     let userNameInput = inputUserName.value;
     let passWordInput = inputPassWord.value;
     username = userNameInput;
     password = passWordInput;
 
-    event.preventDefault(); // Stop normal form submission
+    event.preventDefault();
 
-    //Function to handle the login form submission
-    //making the url 
     let url = `http://localhost:8000/checkingUser/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`
     fetch(url, {
         method: 'GET'
     })
-
-        //Handle the response
         .then(response => response.json())
         .then(data => {
             if (data.success) {
                 console.log('Login successful:', data);
-                //open the welcome page
                 openWelcomePage();
                 submitButton.removeEventListener("click", submitLogin)
                 signUpButtonWrapper.removeEventListener("click", openSignUpPage)
             } else {
                 console.error('Login failed:', data.message || data.message || data);
             }
-        }
-        )
+        })
         .catch(error => console.error('Error:', error));
 }
 
-
-//Function to sign up
+/**
+ * Handles new user signup
+ * Creates new user account and opens welcome page on success
+ */
 function submitSignup(event) {
+    event.preventDefault();
 
-    event.preventDefault(); // Stop normal form submission
-
-    // Get the input value and modify it
     let userNameInput = inputUserName.value;
     let passWordInput = inputPassWord.value;
     username = userNameInput;
     password = passWordInput;
 
-    // Create the URL with values from the input fields
     let url = `http://localhost:8000/addUser/?username=${encodeURIComponent(userNameInput)}&password=${encodeURIComponent(passWordInput)}`;
 
-    // send a POST request to the Python backend
     fetch(url, {
         method: 'POST'
     })
-
-        // Handle the response
         .then(response => response.json())
         .then(data => {
             if (data.success) {
@@ -170,8 +150,9 @@ function submitSignup(event) {
         .catch(error => console.error('Error:', error));
 }
 
-
-//Function to open the login page
+/**
+ * Opens the login page and sets up form elements
+ */
 function openLoginPage() {
     resetFormValue()
 
@@ -179,18 +160,18 @@ function openLoginPage() {
 
     musicWebsite.appendChild(form)
 
-    //Form label setup
+    // Setup form labels
     if (form.contains(document.getElementsByClassName("userNames")[0])) {
         document.getElementsByClassName("userNames")[0].innerHTML = "May I have your account name please?"
         document.getElementsByClassName("passWords")[0].innerHTML = "Tell me a secret. *Your password*"
     }
 
-    //Form setup
+    // Setup form elements
     form.appendChild(signUpButtonWrapper)
     if (musicWebsite.contains(musicContainer)) musicWebsite.removeChild(musicContainer);
     if (!form.contains(inputPassWordWrapper)) form.appendChild(inputPassWordWrapper);
 
-    //Handling submit button
+    // Setup button handlers
     submitButton.innerHTML = "Songs comin for ya!";
     signUpButtonWrapper.removeEventListener("click", openLoginPage)
     signUpButtonWrapper.addEventListener("click", openSignUpPage)
@@ -198,16 +179,17 @@ function openLoginPage() {
     submitButton.removeEventListener("click", submitSignup)
 }
 
-//function to open the sign up ppage
+/**
+ * Opens the signup page and sets up form elements
+ */
 function openSignUpPage() {
-
     resetFormValue()
 
-    //Form label setup
+    // Update form labels for signup
     document.getElementsByClassName("userNames")[0].innerHTML = "Time to sign up your username!"
     document.getElementsByClassName("passWords")[0].innerHTML = "And your password?"
 
-    //submit button setup
+    // Setup button handlers
     submitButton.removeEventListener("click", submitLogin)
     submitButton.addEventListener("click", submitSignup)
     signUpButton.innerHTML = "Thinking again?"
@@ -215,12 +197,14 @@ function openSignUpPage() {
     signUpButtonWrapper.addEventListener("click", openLoginPage)
 }
 
-
-//function to open the welcome page
+/**
+ * Opens the welcome page after successful login/signup
+ * Sets up main interface elements and loads user's music
+ */
 async function openWelcomePage() {
-
     resetFormValue()
 
+    // Setup page structure
     if (!body.contains(musicWebsite)) body.appendChild(musicWebsite)
     if (body.contains(chessGameWeb)) body.removeChild(chessGameWeb)
     if (body.contains(aiWeb)) body.remmoveChild(aiWeb)
@@ -228,17 +212,19 @@ async function openWelcomePage() {
     getAllUserMusic()
     musicWebsite.prepend(musicContainer)
 
-    //tke time till we need it again so but here to avoid error when we need to open Welcome page again
+    // Clean up form elements
     if (form.contains(labelInputPassWord)) form.removeChild(labelInputPassWord)
     if (form.contains(inputPassWordWrapper)) form.removeChild(inputPassWordWrapper);
     if (!form.contains(signUpButtonWrapper)) form.appendChild(signUpButtonWrapper)
 
+    // Setup button handlers
     submitButton.innerHTML = "You want to add more music?";
     submitButton.addEventListener("click", openAddMusicPage);
 
     signUpButton.innerHTML = "Wanna have some games?"
     signUpButton.addEventListener("click", openChessGamePage)
 
+    // Add AI recommendation button if not present
     if (!musicWebsite.contains(document.getElementById("aiWebButton"))) {
         aiWebButtonWrapper = await document.createElement("div")
         aiWebButton = document.createElement("button")
@@ -248,275 +234,278 @@ async function openWelcomePage() {
         aiWebButtonWrapper.className = "button"
         aiWebButtonWrapper.appendChild(aiWebButton)
         form.appendChild(aiWebButtonWrapper)
-        aiWebButton.addEventListener("click", openAiPage)
     }
-
-    document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!";
-    if (form.contains(inputUserNameWrapper)) form.removeChild(inputUserNameWrapper)
 }
 
-// function to open the add music route page
+/**
+ * Opens the add music page and sets up form elements
+ * @param {Event} event - The click event
+ */
 function openAddMusicPage(event) {
+    event.preventDefault();
 
-    resetFormValue()
-
-    event.preventDefault(); // Stop normal form submission
-
-    //Taking out the inputing box
+    // Remove signup button and add music input field
     form.removeChild(signUpButtons)
     form.insertBefore(inputUserNameWrapper, submitButtonWrapper);
-    submitButton.removeEventListener("click", openAddMusicPage);
 
-    // Add button 
-    submitButton.addEventListener("click", addMusic);
-    submitButton.innerHTML = "Add Music!";
-    document.getElementsByClassName("userNames")[0].innerHTML = "Please input the music you want to add/delete!";
-
-    // Delete button
-    form.appendChild(deleteButtonWrapper);
-    deleteButton.addEventListener("click", deleteMusic);
+    // Update form labels and button text
+    document.getElementsByClassName("userNames")[0].innerHTML = "What music do you want to add?"
+    submitButton.innerHTML = "Add music!"
+    submitButton.addEventListener("click", addMusic)
+    submitButton.removeEventListener("click", openAddMusicPage)
 }
 
-//function to add music to the user
+/**
+ * Handles adding new music to user's collection
+ * @param {Event} event - The form submission event
+ */
 function addMusic(event) {
-    event.preventDefault(); // Stop normal form submission
-    // Get the input value and modify it
-    musicInput = inputUserName.value;
+    event.preventDefault();
 
-    // Create the URL with values from the input fields
-    let url = `http://localhost:8000/addMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(musicInput)}`;
+    let musicInput = inputUserName.value;
+    let url = `http://localhost:8000/addMusic/?username=${encodeURIComponent(username)}&music=${encodeURIComponent(musicInput)}`;
 
-    // send a POST request to the Python backend
     fetch(url, {
         method: 'POST'
     })
         .then(response => response.json())
         .then(data => {
-            console.log('Music added:', data);
-            return getAllUserMusic(); // Return the promise from getAllUserMusic
-        })
-        .then(() => {
-            resetForm(); // Only reset form after getAllUserMusic completes
+            if (data.success) {
+                console.log('Music added:', data)
+                openWelcomePage();
+            }
         })
         .catch(error => console.error('Error:', error));
 }
 
-// Function to delete music from the user
+/**
+ * Handles deleting music from user's collection
+ * @param {Event} event - The form submission event
+ */
 function deleteMusic(event) {
-    event.preventDefault(); // Stop normal form submission
+    event.preventDefault();
 
-    musicInput = inputUserName.value;
-    fetch(`http://localhost:8000/deleteMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(musicInput)}`, {
+    let musicInput = inputUserName.value;
+    let url = `http://localhost:8000/deleteMusic/?username=${encodeURIComponent(username)}&music=${encodeURIComponent(musicInput)}`;
+
+    fetch(url, {
         method: 'DELETE'
     })
         .then(response => response.json())
         .then(data => {
-            console.log('Music deleted:', data);
-            return getAllUserMusic(); // Return the promise from getAllUserMusic
-        })
-        .then(() => {
-            resetForm(); // Only reset form after getAllUserMusic completes
+            if (data.success) {
+                console.log('Music deleted:', data)
+                openWelcomePage();
+            }
         })
         .catch(error => console.error('Error:', error));
 }
 
-// Functions to reset the form
-
+/**
+ * Resets form input values
+ */
 function resetFormValue() {
-
-    //Reset data
-    for (var i = 0; i < inputs.length; i++) inputs[i].value = ""
-
+    inputUserName.value = "";
+    inputPassWord.value = "";
 }
 
+/**
+ * Resets form structure and button handlers
+ */
 function resetForm() {
-
     // Reset the form and buttons
     form.removeChild(inputUserNameWrapper);
-    submitButton.innerHTML = "You want to add more music?";
-    submitButton.removeEventListener("click", addMusic);
-    document.getElementsByClassName("userNames")[0].innerHTML = "Welcome " + username + "!"
-    submitButton.addEventListener("click", openAddMusicPage);
-    form.removeChild(deleteButtonWrapper);
-    if (!(form.contains(signUpButtonWrapper))) form.appendChild(signUpButtonWrapper)
+    form.removeChild(submitButtonWrapper);
+    form.removeChild(signUpButtonWrapper);
 }
 
-// Function to call the Python backend's getAllUserMusic route and display it in the list
-
+/**
+ * Fetches and displays all music in user's collection
+ */
 function getAllUserMusic() {
     fetch(`http://localhost:8000/getAllUserMusic/?username=${encodeURIComponent(username)}`)
         .then(response => response.json())
         .then(data => {
-            // Assuming the response is a JSON object with a 'music' property
-            musicList = data[0].userMusic || []; // Use an empty array if 'music' is not present
-            // Clear previous music list
-            musicContainer.innerHTML = 'Your Music List:';
-
-            // Populate the music list
+            musicList = data[0].music || []
+            musicContainer.innerHTML = "Your music:"
             musicList.forEach(music => {
-                const musicItem = document.createElement('li');
-                musicItem.innerHTML = music.userMusic + " (" + music.musicId + ")";
-                musicContainer.appendChild(musicItem);
-            });
+                const musicItem = document.createElement("li")
+                musicItem.innerHTML = music
+                musicContainer.appendChild(musicItem)
+            })
         })
-        .catch(error => console.error('Fetch error:', error));
-    console.log('Music List:', musicList);
+        .catch(error => console.error('Error:', error));
 }
 
+/**
+ * Opens the card game page and sets up game elements
+ * @param {Event} event - The click event
+ */
 function openChessGamePage(event) {
+    event.preventDefault();
 
-    event.preventDefault()
-
+    // Setup page structure
     if (!body.contains(chessGameWeb)) body.appendChild(chessGameWeb)
     if (body.contains(musicWebsite)) body.removeChild(musicWebsite)
-    if (body.contains(aiWeb)) body.remmoveChild(aiWeb)
+    if (body.contains(aiWeb)) body.removeChild(aiWeb)
 
-    addReturnWelcomePageButton()
-
-    resetFormValue()
-
-    addCard.addEventListener("click", openAddCardPage)
-    removeCard.addEventListener("click", openRemoveCardPage)
-    battleCards.addEventListener("click", openBattleCardPage)
-
+    // Load user's cards
     getAllUsersCards()
 }
 
+/**
+ * Fetches and displays all cards in user's collection
+ */
 function getAllUsersCards() {
     fetch(`http://localhost:8000/getAllUserCards/?userName=${encodeURIComponent(username)}`)
         .then(response => response.json())
         .then(data => {
-            // Assuming the response is a JSON object with a 'music' property
-            const cards = data[0].card || []; // Use an empty array if 'music' is not present
-            // Clear previous music list
-            allUsersCards.innerHTML = 'Your Cards List:';
-
-            // Populate the music list
+            const cards = data[0].card || []
+            allUsersCards.innerHTML = "All your cards in your deck!"
             cards.forEach(card => {
-                const cardItem = document.createElement('li');
-                cardItem.innerHTML = "Card Name: " + card.cardName + "<br>" + "Card Id: " + card.cardId + "<br>" + "Power: " + card.power
-                allUsersCards.appendChild(cardItem);
-            });
+                const cardItem = document.createElement("li")
+                cardItem.innerHTML = "Card name: "+card.cardName + "<br>" +"Card Id: " + card.cardId + "<br>" +"Card power: "+card.power
+                allUsersCards.appendChild(cardItem)
+            })
         })
-        .catch(error => console.error('Fetch error:', error));
 }
 
+/**
+ * Opens the add card page and sets up form elements
+ */
 function openAddCardPage() {
+    // Setup form for adding new cards
+    const addCardForm = document.createElement("form")
+    const cardNameInput = document.createElement("input")
+    const cardPowerInput = document.createElement("input")
+    const submitButton = document.createElement("button")
 
-    resetFormValue()
+    // Configure form elements
+    cardNameInput.type = "text"
+    cardNameInput.placeholder = "Card Name"
+    cardPowerInput.type = "number"
+    cardPowerInput.placeholder = "Card Power"
+    submitButton.type = "submit"
+    submitButton.innerHTML = "Add Card"
 
-    if (!addCard.contains(document.getElementById("inputAddCard"))) {
-        const inputAddCard = document.createElement("input")
-        inputAddCard.id = "inputAddCard"
-        document.getElementById("addCard").appendChild(inputAddCard)
-        const buttonAddCard = document.createElement("button")
-        document.getElementById("addCard").appendChild(buttonAddCard)
-        buttonAddCard.style.height = "20px"
-        buttonAddCard.style.width = "18px"
-        buttonAddCard.id = "buttonAddCard"
-        buttonAddCard.innerHTML = "+" // Add text to the button
-        buttonAddCard.addEventListener("click", submitAddCard)
-        addCard.removeEventListener("click", openAddCardPage)
-    }
+    // Add event listener
+    addCardForm.addEventListener("submit", submitAddCard)
+
+    // Assemble form
+    addCardForm.appendChild(cardNameInput)
+    addCardForm.appendChild(cardPowerInput)
+    addCardForm.appendChild(submitButton)
+    addCard.appendChild(addCardForm)
 }
 
+/**
+ * Opens the remove card page and sets up form elements
+ */
 function openRemoveCardPage() {
+    // Setup form for removing cards
+    const removeCardForm = document.createElement("form")
+    const cardIdInput = document.createElement("input")
+    const submitButton = document.createElement("button")
 
-    resetFormValue()
+    // Configure form elements
+    cardIdInput.type = "text"
+    cardIdInput.placeholder = "Card ID"
+    submitButton.type = "submit"
+    submitButton.innerHTML = "Remove Card"
 
-    if (!removeCard.contains(document.getElementById("inputRemoveCard"))) {
-        const inputRemoveCard = document.createElement("input")
-        inputRemoveCard.id = "inputRemoveCard"
-        document.getElementById("removeCard").appendChild(inputRemoveCard)
-        const buttonRemoveCard = document.createElement("button")
-        document.getElementById("removeCard").appendChild(buttonRemoveCard)
-        buttonRemoveCard.style.height = "20px"
-        buttonRemoveCard.style.width = "18px"
-        buttonRemoveCard.id = "buttonRemoveCard"
-        buttonRemoveCard.innerHTML = "+" // Add text to the button
-        buttonRemoveCard.addEventListener("click", submitRemoveCard)
-        removeCard.removeEventListener("click", openRemoveCardPage)
-    }
+    // Add event listener
+    removeCardForm.addEventListener("submit", submitRemoveCard)
+
+    // Assemble form
+    removeCardForm.appendChild(cardIdInput)
+    removeCardForm.appendChild(submitButton)
+    removeCard.appendChild(removeCardForm)
 }
 
-function submitAddCard() {
-    const cardId = document.getElementById("inputAddCard").value
+/**
+ * Handles adding a new card to user's collection
+ * @param {Event} event - The form submission event
+ */
+function submitAddCard(event) {
+    event.preventDefault();
 
-    fetch(`http://localhost:8000/addCard/?userName=${encodeURIComponent(username)}&musicId=${encodeURIComponent(cardId)}`, {
-        method: "POST"
+    const cardName = event.target[0].value;
+    const cardPower = event.target[1].value;
+    const url = `http://localhost:8000/addCard/?userName=${encodeURIComponent(username)}&cardName=${encodeURIComponent(cardName)}&power=${encodeURIComponent(cardPower)}`;
+
+    fetch(url, {
+        method: 'POST'
     })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            console.log('Card added successfully:', data);
-            getAllUsersCards(); // Refresh the cards list
+            if (data.success) {
+                console.log('Card added:', data)
+                openChessGamePage();
+            }
         })
-        .catch(error => {
-            console.error('Error adding card:', error);
-        })
-        .finally(() => {
-            // Clean up elements regardless of success/failure
-            const inputElement = document.getElementById("inputAddCard");
-            const buttonElement = document.getElementById("buttonAddCard");
-            if (inputElement) addCard.removeChild(inputElement);
-            if (buttonElement) addCard.removeChild(buttonElement);
-            addCard.addEventListener("click", openAddCardPage);
-        });
+        .catch(error => console.error('Error:', error));
 }
 
-function submitRemoveCard() {
-    const cardId = document.getElementById("inputRemoveCard").value
+/**
+ * Handles removing a card from user's collection
+ * @param {Event} event - The form submission event
+ */
+function submitRemoveCard(event) {
+    event.preventDefault();
 
-    fetch(`http://localhost:8000/removeCard/?userName=${encodeURIComponent(username)}&cardId=${encodeURIComponent(cardId)}`, {
-        method: "GET"
+    const cardId = event.target[0].value;
+    const url = `http://localhost:8000/removeCard/?userName=${encodeURIComponent(username)}&cardId=${encodeURIComponent(cardId)}`;
+
+    fetch(url, {
+        method: 'DELETE'
     })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            console.log('Card removed successfully:', data);
-            getAllUsersCards(); // Refresh the cards list
+            if (data.success) {
+                console.log('Card removed:', data)
+                openChessGamePage();
+            }
         })
-        .catch(error => {
-            console.error('Error removing card:', error);
-        })
-        .finally(() => {
-            // Clean up elements regardless of success/failure
-            const inputElement = document.getElementById("inputRemoveCard");
-            const buttonElement = document.getElementById("buttonRemoveCard");
-            if (inputElement) removeCard.removeChild(inputElement);
-            if (buttonElement) removeCard.removeChild(buttonElement);
-            removeCard.addEventListener("click", openRemoveCardPage);
-        });
+        .catch(error => console.error('Error:', error));
 }
 
+/**
+ * Handles card battle submission
+ * @param {string} value - The battle state value
+ */
 function submitBattleButtonCard(value) {
-    if (!value || value.trim() === "") {
-        console.error("Please enter a valid value");
-        return false;
-    }
+    if (value === "first") {
+        cardId1 = document.getElementById("cardIdInput").value;
+        STATE = "second";
+        document.getElementById("battleForm").reset();
+        document.getElementById("battleLabel").innerHTML = "Enter second player's username:";
+    } else if (value === "second") {
+        username2 = document.getElementById("cardIdInput").value;
+        STATE = "third";
+        document.getElementById("battleForm").reset();
+        document.getElementById("battleLabel").innerHTML = "Enter second player's card ID:";
+    } else if (value === "third") {
+        cardId2 = document.getElementById("cardIdInput").value;
+        const url = `http://localhost:8000/battleCards/?userName1=${encodeURIComponent(username)}&cardId1=${encodeURIComponent(cardId1)}&userName2=${encodeURIComponent(username2)}&cardId2=${encodeURIComponent(cardId2)}`;
 
-    switch (STATE) {
-        case "player1 card":
-            cardId1 = value;
-            break;
-        case "player2 name":
-            username2 = value;
-            break;
-        case "player2 card":
-            cardId2 = value;
-            break;
+        fetch(url, {
+            method: 'GET'
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    console.log('Battle result:', data)
+                    resetBattleState();
+                    openChessGamePage();
+                }
+            })
+            .catch(error => console.error('Error:', error));
     }
-    return true;
 }
 
+/**
+ * Resets battle state variables
+ */
 function resetBattleState() {
     STATE = "";
     cardId1 = "";
@@ -524,185 +513,151 @@ function resetBattleState() {
     cardId2 = "";
 }
 
+/**
+ * Opens the battle card page and sets up form elements
+ */
 function openBattleCardPage() {
+    // Setup battle form
+    const battleForm = document.createElement("form")
+    const cardIdInput = document.createElement("input")
+    const submitButton = document.createElement("button")
+    const battleLabel = document.createElement("label")
 
-    resetFormValue()
+    // Configure form elements
+    cardIdInput.type = "text"
+    cardIdInput.id = "cardIdInput"
+    battleLabel.id = "battleLabel"
+    battleLabel.innerHTML = "Enter your card ID:"
+    submitButton.type = "submit"
+    submitButton.innerHTML = "Submit"
 
-    if (!battleCards.contains(document.getElementById("inputBattleCards"))) {
-        const inputBattleCards = document.createElement("input")
-        inputBattleCards.id = "inputBattleCards"
-        document.getElementById("battleCards").appendChild(inputBattleCards)
-        const buttonBattleCards = document.createElement("button")
-        document.getElementById("battleCards").appendChild(buttonBattleCards)
-        buttonBattleCards.style.height = "20px"
-        buttonBattleCards.style.width = "18px"
-        buttonBattleCards.id = "buttonBattleCards"
-        buttonBattleCards.innerHTML = "+" // Add text to the button
+    // Add event listener
+    battleForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        submitBattleButtonCard(STATE);
+    })
 
-        battleCards.removeEventListener("click", openBattleCardPage)
-        buttonBattleCards.addEventListener("click", openBattleCardPage)
-    }
-
-    if (STATE == "") {
-        STATE = "player1 card"
-        inputBattleCards.value = ""
-        inputBattleCards.placeholder = "Enter your card ID"
-    }
-
-    else if (STATE == "player1 card") {
-        if (!submitBattleButtonCard(inputBattleCards.value)) return;
-        inputBattleCards.value = ""
-        STATE = "player2 name"
-        inputBattleCards.placeholder = "Enter opponent's username"
-    }
-
-    else if (STATE == "player2 name") {
-        if (!submitBattleButtonCard(inputBattleCards.value)) return;
-        STATE = "player2 card"
-        inputBattleCards.value = ""
-        inputBattleCards.placeholder = "Enter opponent's card ID"
-    }
-    else if (STATE == "player2 card") {
-        if (!submitBattleButtonCard(inputBattleCards.value)) return;
-        inputBattleCards.value = ""
-        battleCards.removeChild(inputBattleCards)
-        battleCards.removeChild(buttonBattleCards)
-        battleCards.addEventListener("click", openBattleCardPage)
-        battleCards.removeEventListener("click", openBattleCardPage)
-
-        fetch(`http://localhost:8000/battleCard/?userName1=${encodeURIComponent(username)}&userName2=${encodeURIComponent(username2)}&cardId1=${encodeURIComponent(cardId1)}&cardId2=${encodeURIComponent(cardId2)}`)
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
-                }
-                return response.json();
-            })
-            .then(data => {
-                console.log('Battle result:', data);
-                // Display battle result to user
-                const resultDiv = document.createElement('div');
-                resultDiv.innerHTML = `Battle Result: ${data.message}`;
-                battleCards.appendChild(resultDiv);
-                // Clean up after 3 seconds
-                setTimeout(() => {
-                    battleCards.removeChild(resultDiv);
-                }, 6000);
-            })
-            .catch(error => {
-                console.error('Error in battle:', error);
-                const errorDiv = document.createElement('div');
-                errorDiv.innerHTML = `Error: ${error.message}`;
-                errorDiv.style.color = 'red';
-                battleCards.appendChild(errorDiv);
-                // Clean up error message after 3 seconds
-                setTimeout(() => {
-                    battleCards.removeChild(errorDiv);
-                }, 5000);
-            })
-            .finally(() => {
-                resetBattleState(); // Reset all state variables
-            });
-    }
+    // Assemble form
+    battleForm.id = "battleForm"
+    battleForm.appendChild(battleLabel)
+    battleForm.appendChild(cardIdInput)
+    battleForm.appendChild(submitButton)
+    battleCards.appendChild(battleForm)
 }
 
+/**
+ * Adds a return button to the welcome page
+ */
 async function addReturnWelcomePageButton() {
-
-    if (!document.getElementsByClassName("backGround")[0].contains(document.getElementById("returnButtonWrapper"))) {
-        const returnButton = await document.createElement("button")
-        const returnButtonWrapper = document.createElement("div")
-
-        returnButton.id = "returnButton"
-        returnButton.innerHTML = "Back to the Welcome town"
-        returnButtonWrapper.className = "input"
-        returnButtonWrapper.id = "returnButtonWrapper"
-
-        returnButtonWrapper.appendChild(returnButton)
-        returnButton.addEventListener("click", returnToWelcomePage)
-
-        document.getElementsByClassName("backGround")[0].appendChild(returnButtonWrapper)
-    }
+    const returnButtonWrapper = await document.createElement("div")
+    const returnButton = document.createElement("button")
+    returnButton.type = "button"
+    returnButton.id = "returnButton"
+    returnButton.innerHTML = "Return to Welcome Page"
+    returnButtonWrapper.className = "button"
+    returnButtonWrapper.appendChild(returnButton)
+    returnButtonWrapper.addEventListener("click", returnToWelcomePage)
+    form.appendChild(returnButtonWrapper)
 }
 
+/**
+ * Returns to the welcome page
+ */
 function returnToWelcomePage() {
-    if (body.contains(aiWeb)) body.removeChild(aiWeb)
-    if (body.contains(chessGameWeb)) body.removeChild(chessGameWeb)
-    openWelcomePage()
+    openWelcomePage();
 }
 
+/**
+ * Opens the AI recommendation page
+ */
 function openAiPage() {
-
     if (!body.contains(aiWeb)) body.appendChild(aiWeb)
-    if (body.contains(chessGameWeb)) body.removeChild(chessGameWeb)
     if (body.contains(musicWebsite)) body.removeChild(musicWebsite)
-
-    addReturnWelcomePageButton()
-    
-    recommendMusic.addEventListener("click", openRecommendMusicPage)
-    pickMusic.addEventListener("click", openPickMusicPage)
-    
+    if (body.contains(chessGameWeb)) body.removeChild(chessGameWeb)
 }
 
+/**
+ * Opens the music recommendation page
+ */
 function openRecommendMusicPage() {
-    if (!recommendMusic.contains(document.getElementById("inputQuery"))) {
-        const inputQuery = document.createElement("input")
-        inputQuery.id = "inputQuery"
-        recommendMusic.appendChild(inputQuery)
-        const buttonQuery = document.createElement("button")
-        recommendMusic.appendChild(buttonQuery)
-        buttonQuery.style.height = "20px"
-        buttonQuery.style.width = "18px"
-        buttonQuery.id = "buttonQuery"
-        buttonQuery.innerHTML = "+" // Add text to the button
-        buttonQuery.addEventListener("click", (query)=>submitQueryRecommendMusic(inputQuery.value,query))
-        recommendMusic.removeEventListener("click", openRecommendMusicPage)
-    }
+    const recommendForm = document.createElement("form")
+    const queryInput = document.createElement("input")
+    const submitButton = document.createElement("button")
+
+    queryInput.type = "text"
+    queryInput.placeholder = "Enter your music preferences"
+    submitButton.type = "submit"
+    submitButton.innerHTML = "Get Recommendations"
+
+    recommendForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        submitQueryRecommendMusic(queryInput.value);
+    })
+
+    recommendForm.appendChild(queryInput)
+    recommendForm.appendChild(submitButton)
+    recommendMusic.appendChild(recommendForm)
 }
 
+/**
+ * Submits music recommendation query
+ * @param {string} query - The user's music preferences
+ */
 function submitQueryRecommendMusic(query) {
-    fetch(`http://localhost:8000/aiSuggestMusic/?query=${encodeURIComponent(query)}`, {
-        method: "POST"
+    const url = `http://localhost:8000/recommendMusic/?username=${encodeURIComponent(username)}&query=${encodeURIComponent(query)}`;
+
+    fetch(url, {
+        method: 'GET'
     })
-        .then(response => {
-            console.log("runned")
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
+        .then(response => response.json())
         .then(data => {
-            console.log(data)
+            if (data.success) {
+                console.log('Recommendations:', data)
+                openAiPage();
+            }
         })
+        .catch(error => console.error('Error:', error));
 }
 
+/**
+ * Opens the music picker page
+ */
 function openPickMusicPage() {
-    if (!pickMusic.contains(document.getElementById("inputQuery"))) {
-        const inputQuery = document.createElement("input")
-        inputQuery.id = "inputQuery"
-        pickMusic.appendChild(inputQuery)
-        const buttonQuery = document.createElement("button")
-        pickMusic.appendChild(buttonQuery)
-        buttonQuery.style.height = "20px"
-        buttonQuery.style.width = "18px"
-        buttonQuery.id = "buttonQuery"
-        buttonQuery.innerHTML = "+" // Add text to the button
-        buttonQuery.addEventListener("click", (query)=>submitQueryPickMusic(inputQuery.value,query))
-        pickMusic.removeEventListener("click", openRecommendMusicPage)
-    }
-}
+    const pickForm = document.createElement("form")
+    const queryInput = document.createElement("input")
+    const submitButton = document.createElement("button")
 
-function submitQueryPickMusic(query) {
-    fetch(`http://localhost:8000/aiPickMusic/?username=${encodeURIComponent(username)}&query=${encodeURIComponent(query)}`, {
-        method: "POST"
+    queryInput.type = "text"
+    queryInput.placeholder = "Enter your mood or preference"
+    submitButton.type = "submit"
+    submitButton.innerHTML = "Pick Music"
+
+    pickForm.addEventListener("submit", (event) => {
+        event.preventDefault();
+        submitQueryPickMusic(queryInput.value);
     })
-        .then(response => {
-            console.log("runned")
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log(data)
-        })
+
+    pickForm.appendChild(queryInput)
+    pickForm.appendChild(submitButton)
+    pickMusic.appendChild(pickForm)
 }
 
+/**
+ * Submits music picker query
+ * @param {string} query - The user's mood or preference
+ */
+function submitQueryPickMusic(query) {
+    const url = `http://localhost:8000/pickMusic/?username=${encodeURIComponent(username)}&query=${encodeURIComponent(query)}`;
+
+    fetch(url, {
+        method: 'GET'
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                console.log('Picked music:', data)
+                openAiPage();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
