@@ -1,0 +1,6 @@
+fastapi
+uvicorn
+pymongo
+google-api-python-client
+motor
+openai

@@ -1,0 +1,7 @@
+__pycache__/
+.devcontainer/
+.venv/
+.vscode/
+node_modules/
+Scripts/
+package-lock.json
