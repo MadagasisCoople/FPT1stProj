@@ -1,36 +1,16 @@
-# Card Repository Module
-# Handles all card game-related database operations including:
-# - Card collection management
-# - Card battles
-# - Card statistics
-
 from domain.Schema import cardNames, userNames, Musics
 from infrastructure.mongoDB import mongoDB
 from googleapiclient.discovery import build
 
-print("Card repository initialized")
 
 class cardRepository:
-    """
-    Repository class for handling card game-related database operations
-    """
 
     async def addCard(self, userName: str, musicId: str, db):
-        """
-        Adds a new card to user's collection
-        
-        Args:
-            userName: Username of the card owner
-            musicId: ID of the music associated with the card
-            db: Database connection instance
-            
-        Returns:
-            dict: Success status and card details
-        """
+
         # setup youtube and search song
         youtube = build("youtube", "v3",
-                        developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
-        request = youtube.search().list()(
+                        developerKey="Youtube_API_Key")
+        request = youtube.videos().list(
             id=musicId,
             part="snippet,statistics"
         )
@@ -41,8 +21,8 @@ class cardRepository:
         viewCount = response["items"][0]["statistics"]["viewCount"]
         likeCount = response["items"][0]["statistics"]["likeCount"]
         # speical power adding to commentcount
-        commentCount = response["items"][0]["statisctics"]["commentCount"] or 0
-        Power = viewCount/likeCount + commentCount  # Power = average person/like
+        commentCount = response["items"][0]["statistics"]["commentCount"] or 0
+        Power = round(int(viewCount)/int(likeCount) + int(commentCount),2)  # Power = average person/like
         cardName = response["items"][0]["snippet"]["title"]
         # creating new card
         newCard = {
@@ -69,70 +49,27 @@ class cardRepository:
         }
 
     async def removeCard(self, userName: str, cardId: str, db):
-        """
-        Removes a card from user's collection
-        
-        Args:
-            userName: Username of the card owner
-            cardId: ID of the card to remove
-            db: Database connection instance
-            
-        Returns:
-            dict: Success status and message
-        """
         collection = db["users"]
-
         await collection.update_one(
             {"userName": userName},
-            {"$pull": {"cardId": cardId
-                       }}
+            {"$pull": {"card": {"cardId": cardId}}}
         )
-
         return{
             "message":"Deleted successfully",
             "cardId":cardId
         }
     
     async def getAllUsersCards(self, userName:str, db):
-        """
-        Retrieves all cards in user's collection
-        
-        Args:
-            userName: Username to fetch cards for
-            db: Database connection instance
-            
-        Returns:
-            list: List of card documents
-        """
         collection = db["users"]
-
-        # Find user and project only card collection, excluding _id
         cursor = collection.find(
             {"userName": userName},
             {"card": 1, "_id": 0}
         )
-        result = await cursor.to_list(length=None)
-        
-        # Return empty list if no cards found
-        if not result or not result[0].get("card"):
-            return [{"card": []}]
-            
+        result = await cursor.to_list(length = None)
         return result
     
-    async def BattleCards(self, userName1:str, userName2:str, cardId1: str, cardId2: str, db):
-        """
-        Handles a card battle between two users
-        
-        Args:
-            userName1: Username of first player
-            userName2: Username of second player
-            cardId1: Card ID of first player
-            cardId2: Card ID of second player
-            db: Database connection instance
-            
-        Returns:
-            dict: Battle result and winner information
-        """
+    async def BattleCards(self, userName1:str, userName2:str, cardId1: int, cardId2: int, db):
+
         collection = db["users"]
 
         user1CardPower = collection.find_one({
