@@ -10,7 +10,7 @@ class cardRepository:
 
         # setup youtube and search song
         youtube = build("youtube", "v3",
-                        developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
+                        developerKey="apiKEY")
         request = youtube.videos().list(
             id=musicId,
             part="snippet,statistics"
