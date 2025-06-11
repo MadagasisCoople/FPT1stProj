@@ -8,7 +8,8 @@ class cardRepository:
     async def addCard(self, userName: str, musicId: str, db):
 
         # setup youtube and search song
-        youtube = build("youtube", "v3", developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
+        youtube = build("youtube", "v3",
+                        developerKey="Youtube_API_Key")
         request = youtube.videos().list(
             id=musicId,
             part="snippet,statistics"
