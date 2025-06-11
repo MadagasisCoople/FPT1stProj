@@ -340,8 +340,19 @@ function getAllUserMusic() {
             // Populate the music list
             musicList.forEach(music => {
                 const musicItem = document.createElement('li');
+                musicItem.style.fontSize = "20px"
                 musicItem.innerHTML = music.userMusic + " (" + music.musicId + ")";
                 musicContainer.appendChild(musicItem);
+
+                // Creating a redirecting Button
+                const youtubeRedirectingButton = document.createElement('button')
+                youtubeRedirectingButton.innerHTML = "Teleporting to " + music.userMusic
+                youtubeRedirectingButton.className = "youtubeRedirectingButton"
+                youtubeRedirectingButton.addEventListener("click", function(){
+                    window.open(`https://www.youtube.com/watch?v=${music.musicId}`,"_blank")
+                })
+                musicItem.appendChild(document.createElement("br"))
+                musicItem.appendChild(youtubeRedirectingButton)
             });
         })
         .catch(error => console.error('Fetch error:', error));
