@@ -26,7 +26,7 @@ class musicRepository:
         Returns:
             dict: Success status and message
         """
-        youtube = build("youtube", "v3", developerKey="Youtube_API_Key")
+        youtube = build("youtube", "v3", developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
 
         request = youtube.search().list(
             q=userMusic,
@@ -87,6 +87,3 @@ class musicRepository:
             }}}}
         )
         return {"message": "Music deleted successfully"}
-    
-    async def getMusicUrl(self, username:str, musicId:str,db):
-        return

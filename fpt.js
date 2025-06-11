@@ -423,7 +423,7 @@ function openAddCardPage() {
 function openRemoveCardPage() {
 
     resetFormValue()
-
+    
     if (!removeCard.contains(document.getElementById("inputRemoveCard"))) {
         const inputRemoveCard = document.createElement("input")
         inputRemoveCard.id = "inputRemoveCard"
@@ -501,6 +501,8 @@ function submitRemoveCard() {
 
 // Function to handle card battle submissions
 function submitBattleButtonCard(value) {
+    console.log("Current STATE:", STATE);
+    console.log("Input value:", value);
     if (!value || value.trim() === "") {
         console.error("Please enter a valid value");
         return false;
@@ -531,18 +533,20 @@ function resetBattleState() {
 // Function to display the card battle interface
 function openBattleCardPage() {
 
-    resetFormValue()
-
     if (!battleCards.contains(document.getElementById("inputBattleCards"))) {
+
+        resetFormValue()
+
         const inputBattleCards = document.createElement("input")
         inputBattleCards.id = "inputBattleCards"
         document.getElementById("battleCards").appendChild(inputBattleCards)
+       
         const buttonBattleCards = document.createElement("button")
         document.getElementById("battleCards").appendChild(buttonBattleCards)
         buttonBattleCards.style.height = "20px"
         buttonBattleCards.style.width = "18px"
         buttonBattleCards.id = "buttonBattleCards"
-        buttonBattleCards.innerHTML = "+" // Add text to the button
+        buttonBattleCards.innerHTML = "+" // Add  to the button
 
         battleCards.removeEventListener("click", openBattleCardPage)
         buttonBattleCards.addEventListener("click", openBattleCardPage)
@@ -550,7 +554,6 @@ function openBattleCardPage() {
 
     if (STATE == "") {
         STATE = "player1 card"
-        inputBattleCards.value = ""
         inputBattleCards.placeholder = "Enter your card ID"
     }
 
@@ -653,13 +656,13 @@ function openAiPage() {
 function openRecommendMusicPage() {
     if (!recommendMusic.contains(document.getElementById("inputQuery"))) {
         const inputQuery = document.createElement("input")
-        inputQuery.id = "inputQuery"
+        inputQuery.id = "inputQueryRecommend"
         recommendMusic.appendChild(inputQuery)
         const buttonQuery = document.createElement("button")
         recommendMusic.appendChild(buttonQuery)
         buttonQuery.style.height = "20px"
         buttonQuery.style.width = "18px"
-        buttonQuery.id = "buttonQuery"
+        buttonQuery.id = "buttonQueryRecommend"
         buttonQuery.innerHTML = "+" // Add text to the button
         buttonQuery.addEventListener("click", (query)=>submitQueryRecommendMusic(inputQuery.value,query))
         recommendMusic.removeEventListener("click", openRecommendMusicPage)
@@ -686,17 +689,22 @@ function submitQueryRecommendMusic(query) {
 // Function to open the music picker page
 function openPickMusicPage() {
     if (!pickMusic.contains(document.getElementById("inputQuery"))) {
+        console.log("gay")
+        
         const inputQuery = document.createElement("input")
-        inputQuery.id = "inputQuery"
+        inputQuery.id = "inputQueryPick"
+        
         pickMusic.appendChild(inputQuery)
         const buttonQuery = document.createElement("button")
         pickMusic.appendChild(buttonQuery)
+        
         buttonQuery.style.height = "20px"
         buttonQuery.style.width = "18px"
-        buttonQuery.id = "buttonQuery"
+        buttonQuery.id = "buttonQueryPick"
         buttonQuery.innerHTML = "+" // Add text to the button
+
         buttonQuery.addEventListener("click", (query)=>submitQueryPickMusic(inputQuery.value,query))
-        pickMusic.removeEventListener("click", openRecommendMusicPage)
+        pickMusic.removeEventListener("click", openPickMusicPage)
     }
 }
 
