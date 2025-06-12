@@ -10,7 +10,7 @@ class recommendService:
     Provides functionality for suggesting new music and picking from user's collection
     """
 
-    openai.api_key = "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"
+    openai.api_key = "yourOpenAIAPIKey"
 
     async def aiSuggestMusic(self, query: str):
         """
