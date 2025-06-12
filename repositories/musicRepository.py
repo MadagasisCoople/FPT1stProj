@@ -26,7 +26,7 @@ class musicRepository:
         Returns:
             dict: Success status and message
         """
-        youtube = build("youtube", "v3", developerKey="apiKEY")
+        youtube = build("youtube", "v3", developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
 
         request = youtube.search().list(
             q=userMusic,

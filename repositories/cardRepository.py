@@ -10,7 +10,7 @@ class cardRepository:
 
         # setup youtube and search song
         youtube = build("youtube", "v3",
-                        developerKey="apiKEY")
+                        developerKey="AIzaSyD6OVKMBhRTvZ1_RSqanT-aa-M_CmkkACg")
         request = youtube.videos().list(
             id=musicId,
             part="snippet,statistics"
@@ -19,10 +19,9 @@ class cardRepository:
         response = request.execute()
 
         # Data getting for card
-        viewCount = int(response["items"][0]["statistics"]["viewCount"])
-        likeCount = int(response["items"][0]["statistics"]["likeCount"])
-        # speical power adding to commentcount
-        commentCount = int(response["items"][0]["statistics"]["commentCount"] or 0)
+        viewCount = int(response["items"][0]["statistics"].get("viewCount", 0))
+        likeCount = int(response["items"][0]["statistics"].get("likeCount", 0))
+        commentCount = int(response["items"][0]["statistics"].get("commentCount", 0)) # Extra power for commentCount
 
         if viewCount < 1000:
             return 0

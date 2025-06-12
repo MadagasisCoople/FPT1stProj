@@ -285,6 +285,9 @@ async function addMusic() {
     // Get the input value and modify it
     music = musicInput.value;
 
+    //Checking if there is data or not
+    if(!music) console.log("Mei you shenme le!")
+
     // Create the URL with values from the input fields
     let url = `http://localhost:8000/addMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(music)}`;
 
@@ -303,20 +306,27 @@ async function addMusic() {
 }
 
 // Function to remove music from user's collection
-function deleteMusic() {
+async function deleteMusic() {
+    // Get the current music value from the input field
+    const music = musicInput.value;
 
+    //Checking if there is data or not
+    if(!music) {
+        console.log("Mei you shenme le!")
+        return; // Exit the function if no music is specified
+    }
+
+    //Making an url for fetching 
+    let url = `http://localhost:8000/deleteMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(music)}`
     
-    fetch(`http://localhost:8000/deleteMusic/?username=${encodeURIComponent(username)}&userMusic=${encodeURIComponent(music)}`, {
-        method: 'DELETE'
-    })
-        .then(response => 
-            getAllUserMusic(),
-            response.json())
-        .then(data => {
-            console.log('Music deleted:', data);
-        })
-        
-        .catch(error => console.error('Error:', error));
+    try {
+        const response = await fetch(url, {method: "DELETE"});
+        const data = await response.json();
+        await getAllUserMusic();
+        console.log('Music deleted:', data);
+    } catch (error) {
+        console.error('Error:', error);
+    }
 }
 
 // Function to reset form input values
@@ -671,19 +681,55 @@ function openRecommendMusicPage() {
 
 // Function to handle music recommendation queries
 function submitQueryRecommendMusic(query) {
+    // Create loading message
+    const loadingDiv = document.createElement('div');
+    loadingDiv.innerHTML = "Searching for music recommendations...";
+    loadingDiv.style.color = "blue";
+    recommendMusic.appendChild(loadingDiv);
+
     fetch(`http://localhost:8000/aiSuggestMusic/?query=${encodeURIComponent(query)}`, {
         method: "POST"
     })
         .then(response => {
-            console.log("runned")
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
-            console.log(data)
+            // Remove loading message
+            recommendMusic.removeChild(loadingDiv);
+            
+            // Create success message with recommendations
+            const resultDiv = document.createElement('div');
+            resultDiv.innerHTML = `Recommendations: ${JSON.stringify(data)}`;
+            resultDiv.style.color = "green";
+            recommendMusic.appendChild(resultDiv);
+            
+            // Remove the result after 10 seconds
+            setTimeout(() => {
+                if (recommendMusic.contains(resultDiv)) {
+                    recommendMusic.removeChild(resultDiv);
+                }
+            }, 10000);
         })
+        .catch(error => {
+            // Remove loading message
+            recommendMusic.removeChild(loadingDiv);
+            
+            // Create error message
+            const errorDiv = document.createElement('div');
+            errorDiv.innerHTML = `Error: ${error.message}`;
+            errorDiv.style.color = "red";
+            recommendMusic.appendChild(errorDiv);
+            
+            // Remove the error message after 5 seconds
+            setTimeout(() => {
+                if (recommendMusic.contains(errorDiv)) {
+                    recommendMusic.removeChild(errorDiv);
+                }
+            }, 5000);
+        });
 }
 
 // Function to open the music picker page
@@ -710,18 +756,54 @@ function openPickMusicPage() {
 
 // Function to handle music picker queries
 function submitQueryPickMusic(query) {
+    // Create loading message
+    const loadingDiv = document.createElement('div');
+    loadingDiv.innerHTML = "Searching for music picks...";
+    loadingDiv.style.color = "blue";
+    pickMusic.appendChild(loadingDiv);
+
     fetch(`http://localhost:8000/aiPickMusic/?username=${encodeURIComponent(username)}&query=${encodeURIComponent(query)}`, {
         method: "POST"
     })
         .then(response => {
-            console.log("runned")
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
             return response.json();
         })
         .then(data => {
-            console.log(data)
+            // Remove loading message
+            pickMusic.removeChild(loadingDiv);
+            
+            // Create success message with picks
+            const resultDiv = document.createElement('div');
+            resultDiv.innerHTML = `Music Picks: ${JSON.stringify(data)}`;
+            resultDiv.style.color = "green";
+            pickMusic.appendChild(resultDiv);
+            
+            // Remove the result after 10 seconds
+            setTimeout(() => {
+                if (pickMusic.contains(resultDiv)) {
+                    pickMusic.removeChild(resultDiv);
+                }
+            }, 10000);
         })
+        .catch(error => {
+            // Remove loading message
+            pickMusic.removeChild(loadingDiv);
+            
+            // Create error message
+            const errorDiv = document.createElement('div');
+            errorDiv.innerHTML = `Error: ${error.message}`;
+            errorDiv.style.color = "red";
+            pickMusic.appendChild(errorDiv);
+            
+            // Remove the error message after 5 seconds
+            setTimeout(() => {
+                if (pickMusic.contains(errorDiv)) {
+                    pickMusic.removeChild(errorDiv);
+                }
+            }, 5000);
+        });
 }
 
